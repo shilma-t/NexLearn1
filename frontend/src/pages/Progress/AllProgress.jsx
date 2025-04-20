@@ -6,7 +6,7 @@ const AllProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userId] = useState('user123'); //  Replace with actual user ID
+  const [userId] = useState('user123'); // Replace with actual user ID
 
   useEffect(() => {
     const fetchProgressUpdates = async () => {
@@ -56,51 +56,53 @@ const AllProgress = () => {
     }
   };
 
-  if (loading) {
-    return <div className="loading-message">Loading progress updates...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message">Error: {error.message}</div>;
-  }
-
-  if (progressUpdates.length === 0) {
-    return <div className="no-progress-message">No progress updates available.</div>;
-  }
+  const calculatePercentage = (completed, total) => {
+    if (total === 0) return 0;
+    return Math.round((completed / total) * 100);
+  };
 
   const getProgressDetails = (update) => {
+    let percentage = 0;
     switch (update.type) {
       case 'COURSE':
+        percentage = calculatePercentage(update.courseProgress?.completedModules, update.courseProgress?.totalModules);
         return (
           <>
             <p><span className="detail-label">Course Title:</span> {update.courseProgress?.courseTitle}</p>
             <p><span className="detail-label">Platform:</span> {update.courseProgress?.platform}</p>
             <p><span className="detail-label">Completed Modules:</span> {update.courseProgress?.completedModules} / {update.courseProgress?.totalModules}</p>
+            <p><span className="detail-label">Progress:</span> {percentage}%</p>
           </>
         );
       case 'READING':
+        percentage = calculatePercentage(update.readingProgress?.pagesRead, update.readingProgress?.totalPages);
         return (
           <>
             <p><span className="detail-label">Book Title:</span> {update.readingProgress?.bookTitle}</p>
             <p><span className="detail-label">Author:</span> {update.readingProgress?.author}</p>
             <p><span className="detail-label">Pages Read:</span> {update.readingProgress?.pagesRead} / {update.readingProgress?.totalPages}</p>
+            <p><span className="detail-label">Progress:</span> {percentage}%</p>
           </>
         );
       case 'SKILL':
+        percentage = calculatePercentage(update.skillProgress?.hoursCompleted, update.skillProgress?.totalHours);
         return (
           <>
             <p><span className="detail-label">Skill Name:</span> {update.skillProgress?.skillName}</p>
             <p><span className="detail-label">Level:</span> {update.skillProgress?.level}</p>
             <p><span className="detail-label">Hours Completed:</span> {update.skillProgress?.hoursCompleted} / {update.skillProgress?.totalHours}</p>
+            <p><span className="detail-label">Progress:</span> {percentage}%</p>
           </>
         );
       case 'PROJECT':
+        percentage = calculatePercentage(update.projectProgress?.completedTasks, update.projectProgress?.totalTasks);
         return (
           <>
             <p><span className="detail-label">Project Name:</span> {update.projectProgress?.projectName}</p>
             <p><span className="detail-label">GitHub Link:</span> {update.projectProgress?.githubLink}</p>
             <p><span className="detail-label">Tech Stack:</span> {update.projectProgress?.techStack}</p>
             <p><span className="detail-label">Completed Tasks:</span> {update.projectProgress?.completedTasks} / {update.projectProgress?.totalTasks}</p>
+            <p><span className="detail-label">Progress:</span> {percentage}%</p>
           </>
         );
       case 'CERTIFICATION':
@@ -118,6 +120,18 @@ const AllProgress = () => {
     }
   };
 
+  if (loading) {
+    return <div className="loading-message">Loading progress updates...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">Error: {error.message}</div>;
+  }
+
+  if (progressUpdates.length === 0) {
+    return <div className="no-progress-message">No progress updates available.</div>;
+  }
+
   return (
     <div className="all-progress-container">
       <h2 className="page-title">All Progress Updates</h2>
@@ -133,6 +147,7 @@ const AllProgress = () => {
             <p className="update-description">{update.description}</p>
             <p><span className="detail-label">Type:</span> {update.type}</p>
             {getProgressDetails(update)}
+            <p><span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}</p>
             <div className="like-section">
               <button
                 className="like-button"
