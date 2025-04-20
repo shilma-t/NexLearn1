@@ -95,4 +95,3 @@ public class ProgressUpdateService {
         return 0.0;
     }
 }
-
