@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Container, Navbar, Nav, Button, Row, Col } from 'react-bootstrap';
+import LearningPlanForm from './pages/learningplan/LearningPlanForm';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css'; // Optional: For custom styles like background or footer fixing
 
-function App() {
-  const [count, setCount] = useState(0)
-
+// --- Dashboard Component (Initial View) ---
+function Dashboard() {
+  const navigate = useNavigate();
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+    <Container className="d-flex flex-column align-items-center justify-content-center text-center" style={{ minHeight: '70vh', paddingTop: '5rem', paddingBottom: '5rem' }}>
+      <h1 className="display-4 mb-3">Welcome to Your Learning Planner</h1>
+      <p className="lead text-muted mb-5">
+        Organize, track, and achieve your learning goals effectively.
       </p>
-    </>
-  )
+      <Row className="g-3 justify-content-center">
+        <Col xs="auto">
+          <Button variant="primary" size="lg" onClick={() => navigate('/plans')} style={{ minWidth: '200px', padding: '1rem 1.5rem' }}>
+            View My Plans
+          </Button>
+        </Col>
+        <Col xs="auto">
+          <Button variant="success" size="lg" onClick={() => navigate('/plan/new')} style={{ minWidth: '200px', padding: '1rem 1.5rem' }}>
+            Create New Plan
+          </Button>
+        </Col>
+      </Row>
+    </Container>
+  );
 }
 
-export default App
+// --- Main App Component ---
+function App() {
+  return (
+    <Router>
+
+      {/* --- Main Content Area --- */}
+      <Container fluid="md" className="mt-4 mb-5 flex-grow-1"> {/* Use fluid="md" for better spacing on larger screens */}
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          
+          <Route path="/plan/new" element={<LearningPlanForm />} />
+      
+        </Routes>
+      </Container>
+    </Router>
+  );
+}
+
+export default App;

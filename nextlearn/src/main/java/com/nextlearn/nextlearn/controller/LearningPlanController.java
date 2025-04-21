@@ -14,6 +14,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/plans")
+@CrossOrigin
 public class LearningPlanController {
 
     @Autowired
