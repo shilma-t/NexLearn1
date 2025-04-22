@@ -1,12 +1,12 @@
-// src/pages/Progress/AllProgress.jsx
 import React, { useState, useEffect } from 'react';
-import './AllProgress.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './AllProgress.css'; 
 
 const AllProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userId] = useState('user123'); // Replace with actual user ID
+  const [userId] = useState('user123');
   const [filterType, setFilterType] = useState('ALL');
   const [filteredUpdates, setFilteredUpdates] = useState([]);
 
@@ -18,7 +18,6 @@ const AllProgress = () => {
           throw new Error(`Failed to fetch progress updates: ${response.status}`);
         }
         const data = await response.json();
-        // Sort updates by createdAt in descending order (latest first)
         const sortedData = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setProgressUpdates(sortedData);
       } catch (error) {
@@ -48,7 +47,6 @@ const AllProgress = () => {
       if (!response.ok) {
         throw new Error('Failed to like progress update');
       }
-      // Update the local state to reflect the like
       setProgressUpdates(prevUpdates =>
         prevUpdates.map(update => {
           if (update.id === id) {
@@ -84,7 +82,18 @@ const AllProgress = () => {
             <p><span className="detail-label">Course Title:</span> {update.courseProgress?.courseTitle}</p>
             <p><span className="detail-label">Platform:</span> {update.courseProgress?.platform}</p>
             <p><span className="detail-label">Completed Modules:</span> {update.courseProgress?.completedModules} / {update.courseProgress?.totalModules}</p>
-            <p><span className="detail-label">Progress:</span> {percentage}%</p>
+            <div className="progress">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${percentage}%` }}
+                aria-valuenow={percentage}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {percentage}%
+              </div>
+            </div>
           </>
         );
       case 'READING':
@@ -94,7 +103,18 @@ const AllProgress = () => {
             <p><span className="detail-label">Book Title:</span> {update.readingProgress?.bookTitle}</p>
             <p><span className="detail-label">Author:</span> {update.readingProgress?.author}</p>
             <p><span className="detail-label">Pages Read:</span> {update.readingProgress?.pagesRead} / {update.readingProgress?.totalPages}</p>
-            <p><span className="detail-label">Progress:</span> {percentage}%</p>
+            <div className="progress">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${percentage}%` }}
+                aria-valuenow={percentage}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {percentage}%
+              </div>
+            </div>
           </>
         );
       case 'SKILL':
@@ -104,7 +124,18 @@ const AllProgress = () => {
             <p><span className="detail-label">Skill Name:</span> {update.skillProgress?.skillName}</p>
             <p><span className="detail-label">Level:</span> {update.skillProgress?.level}</p>
             <p><span className="detail-label">Hours Completed:</span> {update.skillProgress?.hoursCompleted} / {update.skillProgress?.totalHours}</p>
-            <p><span className="detail-label">Progress:</span> {percentage}%</p>
+            <div className="progress">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${percentage}%` }}
+                aria-valuenow={percentage}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {percentage}%
+              </div>
+            </div>
           </>
         );
       case 'PROJECT':
@@ -115,7 +146,18 @@ const AllProgress = () => {
             <p><span className="detail-label">GitHub Link:</span> {update.projectProgress?.githubLink}</p>
             <p><span className="detail-label">Tech Stack:</span> {update.projectProgress?.techStack}</p>
             <p><span className="detail-label">Completed Tasks:</span> {update.projectProgress?.completedTasks} / {update.projectProgress?.totalTasks}</p>
-            <p><span className="detail-label">Progress:</span> {percentage}%</p>
+             <div className="progress">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${percentage}%` }}
+                aria-valuenow={percentage}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {percentage}%
+              </div>
+            </div>
           </>
         );
       case 'CERTIFICATION':
@@ -148,7 +190,7 @@ const AllProgress = () => {
         <label htmlFor="filterType" className="filter-label">Filter by Type:</label>
         <select
           id="filterType"
-          className="filter-select"
+          className="form-select filter-select"
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
         >
@@ -165,27 +207,27 @@ const AllProgress = () => {
       ) : (
         <div className="progress-feed">
           {filteredUpdates.map((update) => (
-            <div key={update.id} className="progress-card">
-              <div className="card-header">
-                <h3 className="update-title">{update.title}</h3>
-                <p className="update-date">
+            <div key={update.id} className="card progress-card mb-4 shadow-sm">
+              <div className="card-body">
+                <h3 className="card-title update-title">{update.title}</h3>
+                <p className="text-muted update-date">
                   Posted: {new Date(update.createdAt).toLocaleString()}
                 </p>
-              </div>
-              <p className="update-description">{update.description}</p>
-              <p><span className="detail-label">Type:</span> {update.type}</p>
-              {getProgressDetails(update)}
-              <p><span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}</p>
-              <div className="like-section">
-                <button
-                  className={`like-button ${update.likedBy.includes(userId) ? 'liked' : ''}`}
-                  onClick={() => handleLike(update.id)}
-                >
-                  {update.likedBy.includes(userId) ? 'Unlike' : 'Like'}
-                </button>
-                <span className="like-count">
-                  {update.likedBy.length} {update.likedBy.length === 1 ? 'Like' : 'Likes'}
-                </span>
+                <p className="card-text update-description">{update.description}</p>
+                <p><span className="detail-label">Type:</span> {update.type}</p>
+                {getProgressDetails(update)}
+                <p className="text-muted"><span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}</p>
+                <div className="d-flex justify-content-between align-items-center mt-3">
+                  <button
+                    className={`btn btn-sm ${update.likedBy.includes(userId) ? 'btn-danger' : 'btn-outline-primary'} like-button`}
+                    onClick={() => handleLike(update.id)}
+                  >
+                    {update.likedBy.includes(userId) ? 'Unlike' : 'Like'}
+                  </button>
+                  <span className="text-muted like-count">
+                    {update.likedBy.length} {update.likedBy.length === 1 ? 'Like' : 'Likes'}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
