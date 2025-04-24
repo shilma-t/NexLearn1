@@ -2,6 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button, Row, Col } from 'react-bootstrap';
 import LearningPlanForm from './pages/learningplan/LearningPlanForm';
+import LearningPlanDetail from './pages/learningplan/LearningPlanDetail';
+import LearningPlanList from './pages/learningplan/LearningPlanList';
+import EditLearningPlanForm from './pages/learningplan/EditLearningPlanForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'; // Optional: For custom styles like background or footer fixing
 
@@ -41,6 +44,9 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           
           <Route path="/plan/new" element={<LearningPlanForm />} />
+          <Route path="/plans" element={<LearningPlanList />} />
+          <Route path="/plan/edit/:id" element={<EditLearningPlanForm />} />
+          <Route path="/plan/:id" element={<LearningPlanDetail/>} />
       
         </Routes>
       </Container>
