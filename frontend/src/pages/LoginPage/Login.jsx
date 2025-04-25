@@ -19,12 +19,12 @@ const Login = () => {
       });
 
       const msg = response.data.message;
-if (msg === "Login successful") {
-  navigate("/home");
-} else {
-  setError(msg); // This will show "Invalid password" or "User not found"
-}
-
+      if (msg === "Login successful") {
+        localStorage.setItem("isLoggedIn", "true"); // ✅ Set this!
+        navigate("/home");
+      } else {
+        setError(msg);
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError("An error occurred during login. Please try again.");

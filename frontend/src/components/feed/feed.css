@@ -1,0 +1,90 @@
+.feed {
+  flex: 5;
+  overflow: auto;
+}
+
+.feedWrapper {
+  padding: 20px;
+  background-color: black;
+  border-radius: 10px;
+}
+
+.shareBox {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #fafafa;
+}
+
+.shareInput {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.shareOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.shareButton {
+  padding: 7px 15px;
+  background-color: #228B22;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.post {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff;
+}
+
+.postCenter img {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+.postCard {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  background: black;
+  color: #ddd;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.profilePic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.postMedia {
+  width: 100%;
+  max-width: 300px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.postTime {
+  font-size: 0.8rem;
+  color: gray;
+  margin-top: 5px;
+}

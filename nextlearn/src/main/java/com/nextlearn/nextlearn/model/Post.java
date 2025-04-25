@@ -2,6 +2,7 @@ package com.nextlearn.nextlearn.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,6 +12,8 @@ public class Post {
     @Id
     private String id;
     private String userId;
+    private String username;
+    private String profilePic;
     private String postType;
     private String title;
     private String description;
@@ -24,8 +27,10 @@ public class Post {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Post(String userId, String postType, String title, String description, String image, int visibilityCount, String caption, List<String> mediaUrls) {
+    public Post(String userId, String username, String profilePic, String postType, String title, String description, String image, int visibilityCount, String caption, List<String> mediaUrls) {
         this.userId = userId;
+        this.username = username;
+        this.profilePic = profilePic;
         this.postType = postType;
         this.title = title;
         this.description = description;
@@ -41,6 +46,12 @@ public class Post {
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getProfilePic() { return profilePic; }
+    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
 
     public String getPostType() { return postType; }
     public void setPostType(String postType) { this.postType = postType; }

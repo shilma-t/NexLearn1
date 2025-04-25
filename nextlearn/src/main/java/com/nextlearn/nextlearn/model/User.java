@@ -9,8 +9,11 @@ public class User {
     private String id;
     private String name;
     private String email;
-    private String password; // New field
-    private String provider; // "manual" or "google"
+    private String password; 
+    private String provider; 
+    private String profilePicture;
+    private String coverPicture;
+    private String bio;
 
     // Getters and Setters
     public String getId() { return id; }
@@ -27,4 +30,13 @@ public class User {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+
+    public String getProfilePicture() { return profilePicture; }
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+
+    public String getCoverPicture() { return coverPicture; }
+    public void setCoverPicture(String coverPicture) { this.coverPicture = coverPicture; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 }

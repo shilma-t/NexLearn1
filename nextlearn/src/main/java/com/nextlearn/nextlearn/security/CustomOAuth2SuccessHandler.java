@@ -33,16 +33,27 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
 
-        Optional<User> existingUser = userRepository.findByEmail(email);
-        if (existingUser.isEmpty()) {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setName(name);
-            newUser.setProvider("google");
-            userRepository.save(newUser);
+        if (email == null || name == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing email or name from OAuth2 provider");
+            return;
         }
 
-        // Redirect to home page after successful authentication
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        User user;
+
+        if (existingUser.isEmpty()) {
+            user = new User();
+            user.setEmail(email);
+            user.setName(name);
+            user.setProvider("google");
+            userRepository.save(user);
+        } else {
+            user = existingUser.get();
+        }
+
+        // Save user to session
+        request.getSession().setAttribute("user", user);
+
         response.sendRedirect("http://localhost:5173/home");
     }
 }

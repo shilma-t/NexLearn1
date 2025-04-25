@@ -27,15 +27,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and() // Enable CORS
-            .csrf().disable() // Disable CSRF if necessary
+            .cors().and()
+            .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/register", "/auth/login", "/oauth2/**").permitAll() // Allow public endpoints
+                .requestMatchers(
+                    "/auth/register", 
+                    "/auth/login", 
+                    "/oauth2/**", 
+                    "/login/oauth2/code/google", 
+                    "/api/posts/**" // ✅ Allow access to posts without auth
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .successHandler(successHandler) // Custom success handler
-                .failureHandler((request, response, exception) -> { // Custom failure handler
+                .successHandler(successHandler)
+                .failureHandler((request, response, exception) -> {
                     exception.printStackTrace();
                     response.sendRedirect("/login?error");
                 })
@@ -48,7 +54,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:8080", "http://localhost:9006"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);

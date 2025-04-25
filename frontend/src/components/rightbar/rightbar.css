@@ -1,0 +1,38 @@
+.rightbar {
+  flex: 3;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  height: fit-content;
+  position: sticky;
+  top: 60px;
+}
+
+.rightbarTitle {
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.rightbarFollowings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rightbarFollowing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  text-align: center;
+}
+
+.rightbarFollowingImg {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.rightbarFollowingName {
+  font-size: 12px;
+  margin-top: 5px;
+}
