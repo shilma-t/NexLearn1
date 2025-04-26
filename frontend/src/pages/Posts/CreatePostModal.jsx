@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./createPostModal.css";
 import axios from "axios";
 
@@ -7,7 +7,10 @@ export default function CreatePostModal({ onClose, fetchPosts }) {
   const [media, setMedia] = useState([]);
   const [caption, setCaption] = useState("");
   const [location, setLocation] = useState("");
-  const [showDiscard, setShowDiscard] = useState(false);
+  const [showDiscardPopup, setShowDiscardPopup] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [filterStrength, setFilterStrength] = useState(1);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username");
@@ -25,7 +28,6 @@ export default function CreatePostModal({ onClose, fetchPosts }) {
     formData.append("profilePic", profilePic);
     formData.append("caption", caption);
     formData.append("location", location);
-
     media.forEach((file) => {
       formData.append("file", file);
     });
@@ -41,46 +43,163 @@ export default function CreatePostModal({ onClose, fetchPosts }) {
     }
   };
 
+  const applyFilter = (filterName) => setFilter(filterName);
+  const handleFilterStrengthChange = (e) => setFilterStrength(e.target.value);
+
+  const getFilterStyle = () => {
+    if (!filter) return "none";
+
+    const strength = Number(filterStrength);
+
+    switch (filter) {
+      case "brightness":
+        return `brightness(${strength})`;
+      case "grayscale":
+        return `grayscale(${strength})`;
+      case "contrast":
+        return `contrast(${strength})`;
+      case "sepia":
+        return `sepia(${strength})`;
+      default:
+        return "none";
+    }
+  };
+
+  const fetchLocation = () => {
+    if (navigator.geolocation) {
+      setIsFetchingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            );
+            const data = await res.json();
+            if (data && data.address) {
+              const { city, town, village, state, country } = data.address;
+              const placeName = city || town || village || state || country || "Unknown Location";
+              setLocation(`${placeName}, ${country}`);
+            } else {
+              setLocation("Unknown Location");
+            }
+          } catch (error) {
+            console.error("Error fetching place name:", error);
+            setLocation("Unknown Location");
+          }
+          setIsFetchingLocation(false);
+        },
+        (error) => {
+          console.error("Error fetching location:", error);
+          setIsFetchingLocation(false);
+        }
+      );
+    } else {
+      console.error("Geolocation not supported by this browser.");
+    }
+  };
+
   return (
     <div className="modalOverlay">
       <div className="modalBox">
         {step === 1 && (
           <>
-            <h3>Select up to 3 media files</h3>
+            <h3 className="modalTitle">Select Media</h3>
             <input type="file" multiple accept="image/*,video/*" onChange={handleMediaChange} />
-            <button onClick={() => setStep(2)} disabled={media.length === 0}>Next</button>
+            <button className="accentBtn" onClick={() => setStep(2)} disabled={media.length === 0}>
+              Next
+            </button>
           </>
         )}
 
         {step === 2 && (
           <>
-            <h3>Preview & Apply Filters (Mock)</h3>
+            <h3 className="modalTitle">Edit & Filter</h3>
             <div className="mediaPreview">
               {media.map((file, idx) => (
-                <p key={idx}>{file.name}</p>
+                <div key={idx} className="mediaItem">
+                  {file.type.startsWith("image/") ? (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="preview"
+                      className="filterable"
+                      style={{ filter: getFilterStyle() }}
+                    />
+                  ) : (
+                    <video
+                      src={URL.createObjectURL(file)}
+                      controls
+                      className="filterable"
+                      style={{ filter: getFilterStyle() }}
+                    />
+                  )}
+                </div>
               ))}
             </div>
-            <button onClick={() => setStep(3)}>Next</button>
+
+            <div className="filterOptions">
+              <button onClick={() => applyFilter("brightness")}>Brightness</button>
+              <button onClick={() => applyFilter("grayscale")}>Grayscale</button>
+              <button onClick={() => applyFilter("contrast")}>Contrast</button>
+              <button onClick={() => applyFilter("sepia")}>Sepia</button>
+              <button onClick={() => applyFilter("")}>Reset</button>
+            </div>
+
+            <div className="filterStrength">
+              <label>Adjust Strength</label>
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value={filterStrength}
+                onChange={handleFilterStrengthChange}
+              />
+              <span>{Math.round(filterStrength * 100)}%</span>
+            </div>
+
+            <button className="accentBtn" onClick={() => setStep(3)}>Next</button>
           </>
         )}
 
         {step === 3 && (
           <>
-            <h3>Caption & Location</h3>
-            <textarea value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Write a caption..." />
-            <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" />
+            <h3 className="modalTitle">Write a Caption</h3>
+            <div className="captionContainer">
+              <textarea
+                className="captionInput"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Write a caption..."
+              />
+              <input
+                className="locationInput"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Add location manually"
+              />
+              <button className="accentBtn" onClick={fetchLocation} disabled={isFetchingLocation}>
+                {isFetchingLocation ? "Fetching Location..." : "Use Current Location"}
+              </button>
+            </div>
+
             <div className="modalActions">
-              <button onClick={handlePost}>Post</button>
-              <button onClick={() => setShowDiscard(true)}>Discard</button>
+              <button className="accentBtn" onClick={handlePost}>Post</button>
+              <button className="discardBtn" onClick={() => setShowDiscardPopup(true)}>Discard</button>
             </div>
           </>
         )}
 
-        {showDiscard && (
-          <div className="discardPopup">
-            <p>Are you sure you want to discard this post?</p>
-            <button onClick={onClose}>Yes</button>
-            <button onClick={() => setShowDiscard(false)}>No</button>
+        {showDiscardPopup && (
+          <div className="popupOverlay">
+            <div className="popupBox">
+              <p>Discard this post?</p>
+              <div className="popupActions">
+                <button className="accentBtn" onClick={onClose}>Yes</button>
+                <button className="discardBtn" onClick={() => setShowDiscardPopup(false)}>No</button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -50,12 +50,12 @@ const Login = () => {
           <source src="/assets/video2.mp4" type="video/mp4" />
         </video>
         <video autoPlay loop muted>
-          <source src="/assest/video3.mp4" type="video/mp4" />
+          <source src="/assets/video3.mp4" type="video/mp4" />
         </video>
       </div>
 
       <div className="left-section">
-        <h1 className="nexlearn-text">Nexlearn</h1>
+        <h1 className="nexlearn-text">NexLearn</h1>
       </div>
 
       <div className="right-section">
