@@ -1,0 +1,81 @@
+/* src/pages/Progress/UserProgress.css */
+
+.page-title {
+    color: #333;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .progress-card {
+    transition: transform 0.2s;
+    border-radius: 8px;
+  }
+  
+  .progress-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .update-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .update-description {
+    color: #555;
+    margin-bottom: 1rem;
+  }
+  
+  .progress-details {
+    margin-bottom: 1rem;
+  }
+  
+  .detail-label {
+    font-weight: 600;
+    color: #666;
+  }
+  
+  .progress {
+    height: 10px;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+  }
+  
+  .progress-bar {
+    background-color: #4a89dc;
+    border-radius: 5px;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+  }
+  
+  /* Modal backdrop styles */
+  .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  /* For the links in project cards */
+  a {
+    color: #4a89dc;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Style for empty state message */
+  .alert-info {
+    background-color: #e8f4fd;
+    border-color: #c5e2fc;
+    color: #0c63e4;
+  }

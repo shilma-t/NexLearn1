@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button, Row, Col } from 'react-bootstrap';
@@ -5,8 +6,12 @@ import LearningPlanForm from './pages/learningplan/LearningPlanForm';
 import LearningPlanDetail from './pages/learningplan/LearningPlanDetail';
 import LearningPlanList from './pages/learningplan/LearningPlanList';
 import EditLearningPlanForm from './pages/learningplan/EditLearningPlanForm';
+import CreateProgress from './pages/Progress/ProgressCreation';
+import AllProgress from './pages/Progress/AllProgress'; 
+import UserProgress from './pages/Progress/UserProgress';
+import ProgressEdit from './pages/Progress/ProgressEdit';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css'; // Optional: For custom styles like background or footer fixing
+import './App.css'; // Optional: For custom styles
 
 // --- Dashboard Component (Initial View) ---
 function Dashboard() {
@@ -37,17 +42,20 @@ function Dashboard() {
 function App() {
   return (
     <Router>
-
-      {/* --- Main Content Area --- */}
-      <Container fluid="md" className="mt-4 mb-5 flex-grow-1"> {/* Use fluid="md" for better spacing on larger screens */}
+      <Container fluid="md" className="mt-4 mb-5 flex-grow-1">
         <Routes>
+          {/* Learning Plan routes */}
           <Route path="/" element={<Dashboard />} />
-          
           <Route path="/plan/new" element={<LearningPlanForm />} />
           <Route path="/plans" element={<LearningPlanList />} />
           <Route path="/plan/edit/:id" element={<EditLearningPlanForm />} />
-          <Route path="/plan/:id" element={<LearningPlanDetail/>} />
-      
+          <Route path="/plan/:id" element={<LearningPlanDetail />} />
+
+          {/* Progress Tracking routes */}
+          <Route path="/create-progress" element={<CreateProgress />} />
+          <Route path="/all-progress" element={<AllProgress />} /> 
+          <Route path="/my-progress" element={<UserProgress />} />
+          <Route path="/edit-progress/:id" element={<ProgressEdit />} />
         </Routes>
       </Container>
     </Router>
