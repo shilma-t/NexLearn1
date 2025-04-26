@@ -1,0 +1,41 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modalBox {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    position: relative;
+  }
+  
+  .mediaPreview {
+    margin: 10px 0;
+  }
+  
+  .modalActions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .discardPopup {
+    position: absolute;
+    background: #fff;
+    top: 30%;
+    left: 10%;
+    right: 10%;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  
