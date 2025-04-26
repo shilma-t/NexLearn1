@@ -1,0 +1,54 @@
+.comment-section {
+    margin-top: 30px;
+  }
+  
+  .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .comment-form textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    min-height: 80px;
+    border-radius: 8px;
+  }
+  
+  .comment-form button {
+    align-self: flex-end;
+    background-color: #007bff;
+    border: none;
+    padding: 8px 16px;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .comment-form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .comment-list {
+    margin-top: 20px;
+  }
+  
+  .comment-card {
+    background: #f1f1f1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .comment-card .actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 14px;
+  }
+  

@@ -1,0 +1,54 @@
+.profilePage {
+  padding: 20px;
+  color: white;
+  background-color: black;
+  min-height: 100vh;
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.profilePic {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid gray;
+}
+
+.profileInfo h2 {
+  margin: 0;
+}
+
+.profileStats {
+  margin: 10px 0;
+  display: flex;
+  gap: 20px;
+  font-size: 16px;
+}
+
+.profileBio {
+  margin: 5px 0;
+}
+
+.profileLink {
+  color: #0095f6;
+  text-decoration: none;
+}
+
+.profilePosts {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 30px;
+  gap: 10px;
+}
+
+.profilePost img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+}
