@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button, Row, Col } from 'react-bootstrap';
 import LearningPlanForm from './pages/learningplan/LearningPlanForm';
 import LearningPlanDetail from './pages/learningplan/LearningPlanDetail';
@@ -10,8 +10,9 @@ import CreateProgress from './pages/Progress/ProgressCreation';
 import AllProgress from './pages/Progress/AllProgress'; 
 import UserProgress from './pages/Progress/UserProgress';
 import ProgressEdit from './pages/Progress/ProgressEdit';
+import CommentSection from './components/CommentSection'; // 🛑 Also import your Comment Section here
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css'; // Optional: For custom styles
+import './App.css';
 
 // --- Dashboard Component (Initial View) ---
 function Dashboard() {
@@ -38,6 +39,17 @@ function Dashboard() {
   );
 }
 
+// --- PostPage with Comment Section ---
+function PostPage() {
+  return (
+    <Container className="mt-5">
+      <h1 className="title">Post Title</h1>
+      <p className="subtitle">This is an example post. You can leave comments below 👇</p>
+      <CommentSection postId="1" />
+    </Container>
+  );
+}
+
 // --- Main App Component ---
 function App() {
   return (
@@ -53,9 +65,12 @@ function App() {
 
           {/* Progress Tracking routes */}
           <Route path="/create-progress" element={<CreateProgress />} />
-          <Route path="/all-progress" element={<AllProgress />} /> 
+          <Route path="/all-progress" element={<AllProgress />} />
           <Route path="/my-progress" element={<UserProgress />} />
           <Route path="/edit-progress/:id" element={<ProgressEdit />} />
+
+          {/* Post page with comments */}
+          <Route path="/post" element={<PostPage />} />
         </Routes>
       </Container>
     </Router>
