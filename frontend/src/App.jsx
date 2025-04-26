@@ -1,20 +1,28 @@
 // src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { Container, Navbar, Nav, Button, Row, Col } from 'react-bootstrap';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Container, Button, Row, Col } from "react-bootstrap";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+
+// Pages
+import Login from "./pages/LoginPage/Login";
+import Register from "./pages/LoginPage/Register";
+import Home from "./pages/home/Home";
+import Profile from "./pages/Profile/Profile";
 import LearningPlanForm from './pages/learningplan/LearningPlanForm';
 import LearningPlanDetail from './pages/learningplan/LearningPlanDetail';
 import LearningPlanList from './pages/learningplan/LearningPlanList';
 import EditLearningPlanForm from './pages/learningplan/EditLearningPlanForm';
+
 import CreateProgress from './pages/Progress/ProgressCreation';
 import AllProgress from './pages/Progress/AllProgress'; 
 import UserProgress from './pages/Progress/UserProgress';
 import ProgressEdit from './pages/Progress/ProgressEdit';
-import CommentSection from './components/CommentSection'; // 🛑 Also import your Comment Section here
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
+import CommentSection from './components/CommentSection';
 
-// --- Dashboard Component (Initial View) ---
+// --- Dashboard Component ---
 function Dashboard() {
   const navigate = useNavigate();
   return (
@@ -51,30 +59,41 @@ function PostPage() {
 }
 
 // --- Main App Component ---
-function App() {
+const App = () => {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
   return (
-    <Router>
-      <Container fluid="md" className="mt-4 mb-5 flex-grow-1">
-        <Routes>
-          {/* Learning Plan routes */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/plan/new" element={<LearningPlanForm />} />
-          <Route path="/plans" element={<LearningPlanList />} />
-          <Route path="/plan/edit/:id" element={<EditLearningPlanForm />} />
-          <Route path="/plan/:id" element={<LearningPlanDetail />} />
+    <GoogleOAuthProvider clientId="235074436580-fekrpapo667arbo0jkqa9nmprcpqul96.apps.googleusercontent.com">
+      <Router>
+        <Container fluid="md" className="mt-4 mb-5 flex-grow-1">
+          <Routes>
+            {/* Auth Routes */}
+            <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
+            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} />
 
-          {/* Progress Tracking routes */}
-          <Route path="/create-progress" element={<CreateProgress />} />
-          <Route path="/all-progress" element={<AllProgress />} />
-          <Route path="/my-progress" element={<UserProgress />} />
-          <Route path="/edit-progress/:id" element={<ProgressEdit />} />
+            {/* Learning Plan Routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/plan/new" element={<LearningPlanForm />} />
+            <Route path="/plans" element={<LearningPlanList />} />
+            <Route path="/plan/edit/:id" element={<EditLearningPlanForm />} />
+            <Route path="/plan/:id" element={<LearningPlanDetail />} />
 
-          {/* Post page with comments */}
-          <Route path="/post" element={<PostPage />} />
-        </Routes>
-      </Container>
-    </Router>
+            {/* Progress Tracking Routes */}
+            <Route path="/create-progress" element={<CreateProgress />} />
+            <Route path="/all-progress" element={<AllProgress />} />
+            <Route path="/my-progress" element={<UserProgress />} />
+            <Route path="/edit-progress/:id" element={<ProgressEdit />} />
+
+            {/* Post page with comments */}
+            <Route path="/post" element={<PostPage />} />
+          </Routes>
+        </Container>
+      </Router>
+    </GoogleOAuthProvider>
   );
-}
+};
 
 export default App;
