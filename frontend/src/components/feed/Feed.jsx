@@ -135,67 +135,58 @@ export default function Feed() {
           </button>
         </div>
         {posts.map((post) => (
-  <div className="postCard" key={post.id}>
-    <div className="postHeader">
-      <div className="postUser">
-        <img
-          src={post.profilePic}
-          alt="Profile"
-          className="profilePic"
-        />
-        <span>{post.username}</span>
-      </div>
+          <div className="postCard" key={post.id}>
+            <div className="postHeader">
+              {/* Removed Profile Pic and Username */}
+              <div className="postOptionsWrapper">
+                <button
+                  className="postOptionsBtn"
+                  onClick={() =>
+                    setPosts((prev) =>
+                      prev.map((p) =>
+                        p.id === post.id
+                          ? { ...p, showOptions: !p.showOptions }
+                          : { ...p, showOptions: false }
+                      )
+                    )
+                  }
+                >
+                  ⋯
+                </button>
 
-      <div className="postOptionsWrapper">
-        <button
-          className="postOptionsBtn"
-          onClick={() =>
-            setPosts((prev) =>
-              prev.map((p) =>
-                p.id === post.id
-                  ? { ...p, showOptions: !p.showOptions }
-                  : { ...p, showOptions: false }
-              )
-            )
-          }
-        >
-          ⋯
-        </button>
+                {post.showOptions && (
+                  <div className="postDropdown">
+                    <button onClick={() => handleEdit(post)}>✏️ Edit</button>
+                    <button onClick={() => handleDelete(post.id)}>🗑️ Delete</button>
+                  </div>
+                )}
+              </div>
+            </div>
 
-        {post.showOptions && (
-          <div className="postDropdown">
-            <button onClick={() => handleEdit(post)}>✏️ Edit</button>
-            <button onClick={() => handleDelete(post.id)}>🗑️ Delete</button>
+            <p>{post.caption}</p>
+
+            {post.mediaUrls &&
+              post.mediaUrls.map((url, index) => (
+                <img
+                  key={index}
+                  src={url}
+                  alt="Media"
+                  className="postMedia"
+                />
+              ))}
+
+            <div className="postActions">
+              <button className="likeBtn">❤️ {post.likes}</button>
+              <button className="commentBtn">💬 {post.comments}</button>
+              <button className="shareBtn">🔗</button>
+              <button className="saveBtn">📑</button>
+            </div>
+
+            <p className="postTime">
+              {new Date(post.timestamp).toLocaleString()}
+            </p>
           </div>
-        )}
-      </div>
-    </div>
-
-    <p>{post.caption}</p>
-
-    {post.mediaUrls &&
-      post.mediaUrls.map((url, index) => (
-        <img
-          key={index}
-          src={url}
-          alt="Media"
-          className="postMedia"
-        />
-      ))}
-
-    <div className="postActions">
-      <button className="likeBtn">❤️ {post.likes}</button>
-      <button className="commentBtn">💬 {post.comments}</button>
-      <button className="shareBtn">🔗</button>
-      <button className="saveBtn">📑</button>
-    </div>
-
-    <p className="postTime">
-      {new Date(post.timestamp).toLocaleString()}
-    </p>
-  </div>
-))}
-
+        ))}
 
         {editMode && (
           <div className="modalOverlay">
