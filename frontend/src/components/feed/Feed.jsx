@@ -11,7 +11,6 @@ export default function Feed() {
   const [editPostId, setEditPostId] = useState(null);
   const [editCaption, setEditCaption] = useState("");
   const [editMedia, setEditMedia] = useState([]);
-
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const userId = localStorage.getItem("userId");
@@ -37,7 +36,9 @@ export default function Feed() {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("http://localhost:9006/api/posts");
+      const res = await axios.get("http://localhost:9006/api/posts", {
+        withCredentials: true, // Optional if session-protected
+      });
       setPosts(res.data);
     } catch (err) {
       console.error("Error fetching posts:", err);
@@ -60,6 +61,7 @@ export default function Feed() {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true, // ✅ Required for session to be sent
       });
       setCaption("");
       setMedia([]);
@@ -92,6 +94,7 @@ export default function Feed() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true, // ✅ Important for session
         }
       );
       setEditMode(false);
@@ -103,7 +106,9 @@ export default function Feed() {
 
   const handleDelete = async (postId) => {
     try {
-      await axios.delete(`http://localhost:9006/api/posts/${postId}`);
+      await axios.delete(`http://localhost:9006/api/posts/${postId}`, {
+        withCredentials: true, // Optional if delete requires login
+      });
       fetchPosts();
     } catch (err) {
       console.error("Error deleting post:", err);
@@ -134,10 +139,10 @@ export default function Feed() {
             Share
           </button>
         </div>
+
         {posts.map((post) => (
           <div className="postCard" key={post.id}>
             <div className="postHeader">
-              {/* Removed Profile Pic and Username */}
               <div className="postOptionsWrapper">
                 <button
                   className="postOptionsBtn"
@@ -167,12 +172,7 @@ export default function Feed() {
 
             {post.mediaUrls &&
               post.mediaUrls.map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt="Media"
-                  className="postMedia"
-                />
+                <img key={index} src={url} alt="Media" className="postMedia" />
               ))}
 
             <div className="postActions">
@@ -206,10 +206,7 @@ export default function Feed() {
               />
               <div className="modalActions">
                 <button onClick={handleUpdate}>Update Post</button>
-                <button
-                  className="cancelBtn"
-                  onClick={() => setEditMode(false)}
-                >
+                <button className="cancelBtn" onClick={() => setEditMode(false)}>
                   Cancel
                 </button>
               </div>
