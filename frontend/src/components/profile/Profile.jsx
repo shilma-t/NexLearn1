@@ -3,7 +3,6 @@ import axios from "axios";
 import "./profile.css";
 import Sidebar from "../sidebar/sidebar";
 import Rightbar from "../rightbar/Rightbar";
-import { getSession, isLoggedIn } from "../../utils/SessionManager";
 
 export default function Profile() {
   const [userPosts, setUserPosts] = useState([]);
@@ -15,18 +14,20 @@ export default function Profile() {
   const POSTS_URL = `${API_BASE_URL}/posts`;
   const COMMENTS_URL = `${API_BASE_URL}/comments`;
 
-  // Get user info from session
+  // Get user info from Google session
   const getUserInfo = () => {
-    if (!isLoggedIn()) {
-      return null;
-    }
-    const sessionData = getSession();
+    const sessionData = localStorage.getItem('skillhub_user_session');
     if (sessionData) {
-      return {
-        userId: sessionData.email,
-        username: sessionData.name,
-        profilePic: sessionData.picture
-      };
+      try {
+        const userData = JSON.parse(sessionData);
+        return {
+          userId: userData.email,
+          username: userData.name,
+          profilePic: userData.picture
+        };
+      } catch (e) {
+        console.error("Error parsing session:", e);
+      }
     }
     return null;
   };

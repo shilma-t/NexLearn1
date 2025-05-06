@@ -1,142 +1,219 @@
 import React, { useState } from 'react';
-import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import TopicForm from './TopicForm';
+import axiosInstance from '../../utils/axios';
+import './LearningPlanForm.css';
 
-const API_URL = 'http://localhost:9006/api';
-
-const LearningPlanForm = ({ onCancel }) => {
+const LearningPlanForm = () => {
   const navigate = useNavigate();
-
-  // Get user ID from storage or use a default one for testing
-  const getUserId = () => {
-    return localStorage.getItem('userId') || sessionStorage.getItem('userId') || 'user123';
-  };
-
-  const [plan, setPlan] = useState({
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
-    topics: [],
-    userId: getUserId(),
-    sharedWith: []
+    topics: [{ title: '', description: '', resources: '' }]
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e, index) => {
     const { name, value } = e.target;
-    setPlan(prev => ({ ...prev, [name]: value }));
+    if (name.startsWith('topic')) {
+      const topicField = name.split('.')[1];
+      const newTopics = [...formData.topics];
+      newTopics[index] = {
+        ...newTopics[index],
+        [topicField]: value
+      };
+      setFormData({ ...formData, topics: newTopics });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const addTopic = () => {
+    setFormData({
+      ...formData,
+      topics: [...formData.topics, { title: '', description: '', resources: '' }]
+    });
+  };
+
+  const removeTopic = (index) => {
+    const newTopics = formData.topics.filter((_, i) => i !== index);
+    setFormData({ ...formData, topics: newTopics });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
-      // Set up axios with appropriate CORS headers
-      const response = await axios.post(`${API_URL}/plans`, plan, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-      navigate('/');
+      const sessionData = localStorage.getItem('skillhub_user_session');
+      if (!sessionData) {
+        throw new Error('Please login to create a learning plan');
+      }
+
+      const userData = JSON.parse(sessionData);
+      
+      // Format the data according to backend expectations
+      const planData = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        userEmail: userData.email,
+        status: 'IN_PROGRESS',
+        learningTopics: formData.topics.map(topic => ({
+          title: topic.title.trim(),
+          description: topic.description.trim(),
+          resources: topic.resources ? topic.resources.trim() : ''
+        }))
+      };
+
+      console.log('Sending plan data:', planData); // Debug log
+
+      const response = await axiosInstance.post('/plans', planData);
+      
+      if (response.data) {
+        navigate(`/plan/${response.data.id}`);
+      }
     } catch (err) {
-      setError('Failed to save learning plan');
-      console.error(err);
-    }
-  };
-
-  const handleAddTopic = () => {
-    setPlan(prev => ({
-      ...prev,
-      topics: [...prev.topics, {
-        id: Date.now().toString(),
-        name: '',
-        description: '',
-        startDate: null,
-        endDate: null,
-        completed: false,
-        resources: []
-      }]
-    }));
-  };
-
-  const handleTopicChange = (updatedTopic, index) => {
-    setPlan(prev => {
-      const newTopics = [...prev.topics];
-      newTopics[index] = updatedTopic;
-      return { ...prev, topics: newTopics };
-    });
-  };
-
-  const handleRemoveTopic = (index) => {
-    setPlan(prev => {
-      const newTopics = [...prev.topics];
-      newTopics.splice(index, 1);
-      return { ...prev, topics: newTopics };
-    });
-  };
-
-  // Use the onCancel prop if provided, otherwise fallback to default navigation
-  const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    } else {
-      navigate('/');
+      console.error('Error creating plan:', err);
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response:', err.response.data);
+        setError(err.response.data.message || 'Failed to create learning plan. Please check your input and try again.');
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error('No response received:', err.request);
+        setError('Unable to connect to the server. Please check if the backend is running.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(err.message || 'An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container className="mt-4">
-      <h2>Create New Learning Plan</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type="text"
-            name="title"
-            value={plan.title}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            name="description"
-            value={plan.description}
-            onChange={handleChange}
-            rows={3}
-          />
-        </Form.Group>
+    <div className="learning-plan-form">
+      <div className="form-container">
+        <h1>Create Learning Plan</h1>
         
-        <h3 className="mt-4">Topics</h3>
-        {plan.topics.map((topic, index) => (
-          <Card key={topic.id} className="mb-3">
-            <Card.Body>
-              <TopicForm
-                topic={topic}
-                onChange={(updatedTopic) => handleTopicChange(updatedTopic, index)}
-                onRemove={() => handleRemoveTopic(index)}
-              />
-            </Card.Body>
-          </Card>
-        ))}
-        <Button variant="secondary" onClick={handleAddTopic} className="mb-3">
-          Add Topic
-        </Button>
-        
-        <div className="d-flex justify-content-between">
-          <Button variant="primary" type="submit">
-            Create Plan
-          </Button>
-          <Button variant="outline-secondary" type="button" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </div>
-      </Form>
-    </Container>
+        {error && (
+          <div className="error-message" onClick={() => setError(null)}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              placeholder="Enter plan title"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              placeholder="Describe your learning plan"
+            />
+          </div>
+
+          <div className="topics-section">
+            <h2>Topics</h2>
+            {formData.topics.map((topic, index) => (
+              <div key={index} className="topic-group">
+                <div className="topic-header">
+                  <h3>Topic {index + 1}</h3>
+                  {formData.topics.length > 1 && (
+                    <button
+                      type="button"
+                      className="remove-topic"
+                      onClick={() => removeTopic(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={`topic-title-${index}`}>Title</label>
+                  <input
+                    type="text"
+                    id={`topic-title-${index}`}
+                    name={`topic.title`}
+                    value={topic.title}
+                    onChange={(e) => handleChange(e, index)}
+                    required
+                    placeholder="Enter topic title"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={`topic-description-${index}`}>Description</label>
+                  <textarea
+                    id={`topic-description-${index}`}
+                    name={`topic.description`}
+                    value={topic.description}
+                    onChange={(e) => handleChange(e, index)}
+                    required
+                    placeholder="Describe the topic"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={`topic-resources-${index}`}>Resources</label>
+                  <textarea
+                    id={`topic-resources-${index}`}
+                    name={`topic.resources`}
+                    value={topic.resources}
+                    onChange={(e) => handleChange(e, index)}
+                    placeholder="Add learning resources (links, books, etc.)"
+                  />
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              className="add-topic"
+              onClick={addTopic}
+            >
+              Add Topic
+            </button>
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={loading}
+            >
+              {loading ? 'Creating...' : 'Create Plan'}
+            </button>
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => navigate('/plans')}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
