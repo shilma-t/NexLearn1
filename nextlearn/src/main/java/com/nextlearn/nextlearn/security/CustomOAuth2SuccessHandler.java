@@ -11,6 +11,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,11 +34,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
-
-        if (email == null || name == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing email or name from OAuth2 provider");
-            return;
-        }
+        String picture = (String) attributes.get("picture"); // may return null if not available
 
         Optional<User> existingUser = userRepository.findByEmail(email);
         User user;
@@ -51,9 +49,14 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             user = existingUser.get();
         }
 
-        // Save user to session
-        request.getSession().setAttribute("user", user);
+        // Redirect to frontend with user data
+        String redirectUrl = String.format(
+            "http://localhost:5173/oauth2-redirect?email=%s&name=%s&picture=%s",
+            URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8),
+            URLEncoder.encode(user.getName(), StandardCharsets.UTF_8),
+            URLEncoder.encode(picture != null ? picture : "", StandardCharsets.UTF_8)
+        );
 
-        response.sendRedirect("http://localhost:5173/home");
+        response.sendRedirect(redirectUrl);
     }
 }

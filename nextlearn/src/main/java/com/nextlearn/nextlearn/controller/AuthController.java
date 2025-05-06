@@ -2,12 +2,15 @@ package com.nextlearn.nextlearn.controller;
 
 import com.nextlearn.nextlearn.model.User;
 import com.nextlearn.nextlearn.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,29 +38,44 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> loginUser(@RequestBody User user, HttpServletRequest request) {
-        Map<String, String> response = new HashMap<>();
-
+    public ResponseEntity<?> loginUser(@RequestBody User user, HttpSession session) {
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser.isPresent()) {
             User dbUser = existingUser.get();
             if (passwordEncoder.matches(user.getPassword(), dbUser.getPassword())) {
-                // Set session user
-                request.getSession().setAttribute("user", dbUser);
-                response.put("message", "Login successful");
+                session.setAttribute("user", dbUser);
+                return ResponseEntity.ok(Map.of(
+                        "message", "Login successful!",
+                        "user", Map.of(
+                                "name", dbUser.getName(),
+                                "email", dbUser.getEmail()
+                        )
+                ));
             } else {
-                response.put("message", "Invalid password");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Invalid password!"));
             }
-        } else {
-            response.put("message", "User not found");
         }
-
-        return response;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", "User not found!"));
     }
 
-    // ✅ Fetch current user from session
-    @GetMapping("/current-user")
-    public User getCurrentUser(HttpServletRequest request) {
-        return (User) request.getSession().getAttribute("user");
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Not logged in"));
+        }
+        return ResponseEntity.ok(Map.of(
+                "name", user.getName(),
+                "email", user.getEmail()
+        ));
     }
 }

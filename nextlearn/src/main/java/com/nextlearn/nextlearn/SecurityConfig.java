@@ -27,11 +27,10 @@ public class SecurityConfig {
     @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        .cors().and()
+        .cors().configurationSource(corsConfigurationSource()).and() // Use custom CORS config
         .csrf().disable()
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login", "/oauth2/**", "/login/oauth2/code/google", "/api/posts/**").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 👉 ADD THIS LINE
+            .requestMatchers("/auth/register", "/auth/login", "/oauth2/**").permitAll()
             .anyRequest().authenticated()
         )
         .oauth2Login(oauth2 -> oauth2
@@ -46,23 +45,17 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 }
 
 
-    // CORS configuration allowing localhost:5173 (React frontend)
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "Accept")); // Specify headers explicitly
+    config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+}
 
-    // Password Encoder for standard login/signup
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }

@@ -13,10 +13,11 @@ export default function Feed() {
   const [editMedia, setEditMedia] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const userId = localStorage.getItem("userId");
-  const username = localStorage.getItem("username");
-  const profilePic =
-    localStorage.getItem("profilePic") || "https://via.placeholder.com/40";
+  const userId = localStorage.getItem("userId") || "null";
+  const username = localStorage.getItem("username") || "null";
+  const profilePic = localStorage.getItem("profilePic") || "https://via.placeholder.com/40";
+
+  const API_BASE_URL = "http://localhost:9006/api/posts";
 
   useEffect(() => {
     const handler = () => setShowCreateModal(true);
@@ -36,8 +37,8 @@ export default function Feed() {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("http://localhost:9006/api/posts", {
-        withCredentials: true, // Optional if session-protected
+      const res = await axios.get(API_BASE_URL, {
+        withCredentials: true,
       });
       setPosts(res.data);
     } catch (err) {
@@ -46,6 +47,11 @@ export default function Feed() {
   };
 
   const handleShare = async () => {
+    if (!caption.trim() && media.length === 0) {
+      alert("Please add a caption or media to share");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("caption", caption);
     formData.append("userId", userId);
@@ -57,61 +63,88 @@ export default function Feed() {
     });
 
     try {
-      await axios.post("http://localhost:9006/api/posts/upload", formData, {
+      await axios.post(`${API_BASE_URL}/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        withCredentials: true, // ✅ Required for session to be sent
+        withCredentials: true,
       });
       setCaption("");
       setMedia([]);
       fetchPosts();
     } catch (err) {
       console.error("Error posting:", err);
+      alert("Failed to create post. Please try again.");
     }
   };
 
   const handleEdit = (post) => {
+    if (!post._id) {
+      console.error("Post ID is missing");
+      return;
+    }
     setEditMode(true);
-    setEditPostId(post.id);
-    setEditCaption(post.caption);
+    setEditPostId(post._id);
+    setEditCaption(post.caption || "");
     setEditMedia([]);
   };
 
   const handleUpdate = async () => {
+    if (!editPostId) {
+      console.error("Edit post ID is missing");
+      return;
+    }
+
+    if (!editCaption.trim() && editMedia.length === 0) {
+      alert("Please add a caption or media to update");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("caption", editCaption);
 
-    editMedia.forEach((file) => {
-      formData.append("file", file);
-    });
+    if (editMedia.length > 0) {
+      editMedia.forEach((file) => {
+        formData.append("file", file);
+      });
+    }
 
     try {
       await axios.put(
-        `http://localhost:9006/api/posts/${editPostId}`,
+        `${API_BASE_URL}/${editPostId}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true, // ✅ Important for session
+          withCredentials: true,
         }
       );
       setEditMode(false);
+      setEditPostId(null);
+      setEditCaption("");
+      setEditMedia([]);
       fetchPosts();
     } catch (err) {
       console.error("Error updating post:", err);
+      alert("Failed to update post. Please try again.");
     }
   };
 
   const handleDelete = async (postId) => {
+    if (!postId) {
+      console.error("Post ID is missing");
+      return;
+    }
+
     try {
-      await axios.delete(`http://localhost:9006/api/posts/${postId}`, {
-        withCredentials: true, // Optional if delete requires login
+      await axios.delete(`${API_BASE_URL}/${postId}`, {
+        withCredentials: true,
       });
       fetchPosts();
     } catch (err) {
       console.error("Error deleting post:", err);
+      alert("Failed to delete post. Please try again.");
     }
   };
 
@@ -141,7 +174,7 @@ export default function Feed() {
         </div>
 
         {posts.map((post) => (
-          <div className="postCard" key={post.id}>
+          <div className="postCard" key={post._id || `post-${Math.random()}`}>
             <div className="postHeader">
               <div className="postOptionsWrapper">
                 <button
@@ -149,7 +182,7 @@ export default function Feed() {
                   onClick={() =>
                     setPosts((prev) =>
                       prev.map((p) =>
-                        p.id === post.id
+                        p._id === post._id
                           ? { ...p, showOptions: !p.showOptions }
                           : { ...p, showOptions: false }
                       )
@@ -162,7 +195,7 @@ export default function Feed() {
                 {post.showOptions && (
                   <div className="postDropdown">
                     <button onClick={() => handleEdit(post)}>✏️ Edit</button>
-                    <button onClick={() => handleDelete(post.id)}>🗑️ Delete</button>
+                    <button onClick={() => handleDelete(post._id)}>🗑️ Delete</button>
                   </div>
                 )}
               </div>
@@ -172,12 +205,17 @@ export default function Feed() {
 
             {post.mediaUrls &&
               post.mediaUrls.map((url, index) => (
-                <img key={index} src={url} alt="Media" className="postMedia" />
+                <img 
+                  key={`${post._id}-media-${index}`} 
+                  src={url} 
+                  alt={`Media ${index + 1}`} 
+                  className="postMedia" 
+                />
               ))}
 
             <div className="postActions">
-              <button className="likeBtn">❤️ {post.likes}</button>
-              <button className="commentBtn">💬 {post.comments}</button>
+              <button className="likeBtn">❤️ {post.likes || 0}</button>
+              <button className="commentBtn">💬 {post.comments || 0}</button>
               <button className="shareBtn">🔗</button>
               <button className="saveBtn">📑</button>
             </div>

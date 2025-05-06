@@ -1,73 +1,44 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Register.css"; // Optional if you separate styles
+import { saveSession } from "../../utils/SessionManager";
+import "./Register.css"; 
 
-const Register = ({ onClose }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Register = () => {
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:9006/auth/register", {
-        name,
-        email,
-        password,
-      });
+      const response = await axios.post("http://localhost:9006/auth/register", form);
       if (response.data === "User registered successfully!") {
-        navigate("/login");
+        saveSession({ name: form.name, email: form.email });
+        navigate("/home");
       } else {
         setError(response.data);
       }
-    } catch (error) {
-      setError("An error occurred during registration");
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError("Registration failed");
     }
   };
 
   return (
-    <div className="popup-overlay">
-      <div className="register-popup">
-        <h2 className="login-title">Register</h2>
-        <form className="login-form" onSubmit={handleRegister}>
-          <div className="input-group">
-            <input
-              className="input-field"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              required
-            />
-          </div>
-          <div className="input-group">
-            <input
-              className="input-field"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              required
-            />
-          </div>
-          <div className="input-group">
-            <input
-              className="input-field"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              required
-            />
-          </div>
-          <button className="submit-button" type="submit">Register</button>
-        </form>
-        {error && <p className="error-message">{error}</p>}
-        <button onClick={onClose} className="close-button">X</button>
-      </div>
+    <div className="register-container">
+      <h2>Register</h2>
+      <form onSubmit={handleRegister}>
+        <input name="name" value={form.name} onChange={handleChange} placeholder="Name" required />
+        <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="Email" required />
+        <input name="password" value={form.password} onChange={handleChange} type="password" placeholder="Password" required />
+        <button type="submit">Register</button>
+      </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 };

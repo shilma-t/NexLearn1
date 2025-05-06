@@ -7,16 +7,6 @@ export default function Sidebar() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:9006/api/profile", { withCredentials: true })
-      .then((res) => setUser(res.data))
-      .catch((err) => console.log(err));
-  }, []);
-
-  const handleProfileClick = () => {
-    navigate("/profile");
-  };
 
   return (
     <div className="sidebar">
