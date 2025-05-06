@@ -4,7 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection = "posts")
 public class Post {
@@ -22,6 +24,8 @@ public class Post {
     private String caption;
     private List<String> mediaUrls;
     private LocalDateTime timestamp;
+    private Set<String> likedBy = new HashSet<>();
+    private int commentsCount = 0;
 
     public Post() {
         this.timestamp = LocalDateTime.now();
@@ -76,4 +80,12 @@ public class Post {
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public Set<String> getLikedBy() { return likedBy; }
+    public void setLikedBy(Set<String> likedBy) { this.likedBy = likedBy; }
+
+    public int getCommentsCount() { return commentsCount; }
+    public void setCommentsCount(int commentsCount) { this.commentsCount = commentsCount; }
+
+    public int getLikesCount() { return likedBy.size(); }
 }

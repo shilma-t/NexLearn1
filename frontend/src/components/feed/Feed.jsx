@@ -12,6 +12,7 @@ export default function Feed() {
   const [editCaption, setEditCaption] = useState("");
   const [editMedia, setEditMedia] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [error, setError] = useState(null);
 
   const userId = localStorage.getItem("userId") || "null";
   const username = localStorage.getItem("username") || "null";
@@ -40,15 +41,18 @@ export default function Feed() {
       const res = await axios.get(API_BASE_URL, {
         withCredentials: true,
       });
-      setPosts(res.data);
+      if (res.data) {
+        setPosts(res.data);
+      }
     } catch (err) {
       console.error("Error fetching posts:", err);
+      setError("Failed to fetch posts. Please try again.");
     }
   };
 
   const handleShare = async () => {
     if (!caption.trim() && media.length === 0) {
-      alert("Please add a caption or media to share");
+      setError("Please add a caption or media to share");
       return;
     }
 
@@ -58,45 +62,51 @@ export default function Feed() {
     formData.append("username", username);
     formData.append("profilePic", profilePic);
 
-    media.forEach((file) => {
-      formData.append("file", file);
-    });
+    if (media.length > 0) {
+      media.forEach((file) => {
+        formData.append("file", file);
+      });
+    }
 
     try {
-      await axios.post(`${API_BASE_URL}/upload`, formData, {
+      const res = await axios.post(`${API_BASE_URL}/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
       });
-      setCaption("");
-      setMedia([]);
-      fetchPosts();
+      if (res.data) {
+        setCaption("");
+        setMedia([]);
+        setError(null);
+        fetchPosts();
+      }
     } catch (err) {
       console.error("Error posting:", err);
-      alert("Failed to create post. Please try again.");
+      setError(err.response?.data || "Failed to create post. Please try again.");
     }
   };
 
   const handleEdit = (post) => {
-    if (!post._id) {
-      console.error("Post ID is missing");
+    if (!post.id) {
+      setError("Post ID is missing");
       return;
     }
     setEditMode(true);
-    setEditPostId(post._id);
+    setEditPostId(post.id);
     setEditCaption(post.caption || "");
     setEditMedia([]);
+    setError(null);
   };
 
   const handleUpdate = async () => {
     if (!editPostId) {
-      console.error("Edit post ID is missing");
+      setError("Edit post ID is missing");
       return;
     }
 
     if (!editCaption.trim() && editMedia.length === 0) {
-      alert("Please add a caption or media to update");
+      setError("Please add a caption or media to update");
       return;
     }
 
@@ -110,7 +120,7 @@ export default function Feed() {
     }
 
     try {
-      await axios.put(
+      const res = await axios.put(
         `${API_BASE_URL}/${editPostId}`,
         formData,
         {
@@ -120,31 +130,37 @@ export default function Feed() {
           withCredentials: true,
         }
       );
-      setEditMode(false);
-      setEditPostId(null);
-      setEditCaption("");
-      setEditMedia([]);
-      fetchPosts();
+      if (res.data) {
+        setEditMode(false);
+        setEditPostId(null);
+        setEditCaption("");
+        setEditMedia([]);
+        setError(null);
+        fetchPosts();
+      }
     } catch (err) {
       console.error("Error updating post:", err);
-      alert("Failed to update post. Please try again.");
+      setError(err.response?.data || "Failed to update post. Please try again.");
     }
   };
 
   const handleDelete = async (postId) => {
     if (!postId) {
-      console.error("Post ID is missing");
+      setError("Post ID is missing");
       return;
     }
 
     try {
-      await axios.delete(`${API_BASE_URL}/${postId}`, {
+      const res = await axios.delete(`${API_BASE_URL}/${postId}`, {
         withCredentials: true,
       });
-      fetchPosts();
+      if (res.status === 200) {
+        setError(null);
+        fetchPosts();
+      }
     } catch (err) {
       console.error("Error deleting post:", err);
-      alert("Failed to delete post. Please try again.");
+      setError(err.response?.data || "Failed to delete post. Please try again.");
     }
   };
 
@@ -154,6 +170,11 @@ export default function Feed() {
 
   return (
     <div className="feed">
+      {error && (
+        <div className="error-message" onClick={() => setError(null)}>
+          {error}
+        </div>
+      )}
       <div className="feedWrapper">
         <div className="shareBox">
           <input
@@ -173,8 +194,8 @@ export default function Feed() {
           </button>
         </div>
 
-        {posts.map((post) => (
-          <div className="postCard" key={post._id || `post-${Math.random()}`}>
+        {posts.map((post, index) => (
+          <div className="postCard" key={post.id || `post-${index}`}>
             <div className="postHeader">
               <div className="postOptionsWrapper">
                 <button
@@ -182,7 +203,7 @@ export default function Feed() {
                   onClick={() =>
                     setPosts((prev) =>
                       prev.map((p) =>
-                        p._id === post._id
+                        p.id === post.id
                           ? { ...p, showOptions: !p.showOptions }
                           : { ...p, showOptions: false }
                       )
@@ -195,7 +216,7 @@ export default function Feed() {
                 {post.showOptions && (
                   <div className="postDropdown">
                     <button onClick={() => handleEdit(post)}>✏️ Edit</button>
-                    <button onClick={() => handleDelete(post._id)}>🗑️ Delete</button>
+                    <button onClick={() => handleDelete(post.id)}>🗑️ Delete</button>
                   </div>
                 )}
               </div>
@@ -204,11 +225,11 @@ export default function Feed() {
             <p>{post.caption}</p>
 
             {post.mediaUrls &&
-              post.mediaUrls.map((url, index) => (
+              post.mediaUrls.map((url, mediaIndex) => (
                 <img 
-                  key={`${post._id}-media-${index}`} 
+                  key={`${post.id}-media-${mediaIndex}`} 
                   src={url} 
-                  alt={`Media ${index + 1}`} 
+                  alt={`Media ${mediaIndex + 1}`} 
                   className="postMedia" 
                 />
               ))}
