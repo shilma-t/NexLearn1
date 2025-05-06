@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,11 @@ public class PostController {
             @RequestParam("caption") String caption,
             @RequestParam(value = "file", required = false) MultipartFile[] files) throws IOException {
         try {
+            // Validate user information
+            if (userId == null || userId.equals("null") || username == null || username.equals("null")) {
+                return ResponseEntity.badRequest().body("User information is required");
+            }
+
             String[] mediaUrls = new String[0];
             if (files != null && files.length > 0) {
                 mediaUrls = new String[files.length];
@@ -49,6 +55,9 @@ public class PostController {
             post.setProfilePic(profilePic);
             post.setCaption(caption);
             post.setMediaUrls(List.of(mediaUrls));
+            post.setLikedBy(new HashSet<>());
+            post.setLikes(0);
+            post.setComments(0);
             return ResponseEntity.ok(postService.createPost(post));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error creating post: " + e.getMessage());
@@ -138,6 +147,63 @@ public class PostController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error deleting post: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<?> likePost(@PathVariable String id, @RequestParam String userId) {
+        try {
+            // Validate user information
+            if (userId == null || userId.equals("null")) {
+                return ResponseEntity.badRequest().body("User ID is required");
+            }
+
+            Optional<Post> postOptional = postService.getPostById(id);
+            if (!postOptional.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Post post = postOptional.get();
+            if (post.getLikedBy() == null) {
+                post.setLikedBy(new HashSet<>());
+            }
+
+            if (post.getLikedBy().contains(userId)) {
+                post.getLikedBy().remove(userId);
+                post.setLikes(post.getLikes() - 1);
+            } else {
+                post.getLikedBy().add(userId);
+                post.setLikes(post.getLikes() + 1);
+            }
+
+            return ResponseEntity.ok(postService.updatePost(id, post));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error liking post: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/comment")
+    public ResponseEntity<?> addComment(@PathVariable String id, @RequestParam String userId, @RequestParam String content) {
+        try {
+            // Validate user information
+            if (userId == null || userId.equals("null")) {
+                return ResponseEntity.badRequest().body("User ID is required");
+            }
+
+            if (content == null || content.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Comment content is required");
+            }
+
+            Optional<Post> postOptional = postService.getPostById(id);
+            if (!postOptional.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Post post = postOptional.get();
+            post.setComments(post.getComments() + 1);
+            return ResponseEntity.ok(postService.updatePost(id, post));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error adding comment: " + e.getMessage());
         }
     }
 }

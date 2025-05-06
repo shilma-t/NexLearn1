@@ -41,36 +41,4 @@ public class PostService {
     public void deletePost(String id) {
         postRepository.deleteById(id);
     }
-
-    public Post toggleLike(String postId, String userId) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            if (post.getLikedBy().contains(userId)) {
-                post.getLikedBy().remove(userId);
-            } else {
-                post.getLikedBy().add(userId);
-            }
-            return postRepository.save(post);
-        }
-        return null;
-    }
-
-    public void incrementCommentsCount(String postId) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            post.setCommentsCount(post.getCommentsCount() + 1);
-            postRepository.save(post);
-        }
-    }
-
-    public void decrementCommentsCount(String postId) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            post.setCommentsCount(Math.max(0, post.getCommentsCount() - 1));
-            postRepository.save(post);
-        }
-    }
 }

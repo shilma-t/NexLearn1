@@ -9,8 +9,10 @@ public class Comment {
     @Id
     private String id;
     private String postId;      // ID of the post this comment belongs to
-    private String username;
-    private String content;
+    private String userId;      // ID of the user who made the comment/like
+    private String username;    // Username of the user
+    private String content;     // Content of the comment or "liked this post" for likes
+    private String type;        // "comment" or "like"
     private LocalDateTime createdAt;
 
     // ✅ Getters and Setters
@@ -30,6 +32,14 @@ public class Comment {
         this.postId = postId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -44,6 +54,14 @@ public class Comment {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public LocalDateTime getCreatedAt() {

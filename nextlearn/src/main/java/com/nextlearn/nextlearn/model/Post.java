@@ -25,7 +25,8 @@ public class Post {
     private List<String> mediaUrls;
     private LocalDateTime timestamp;
     private Set<String> likedBy = new HashSet<>();
-    private int commentsCount = 0;
+    private int likes = 0;
+    private int comments = 0;
 
     public Post() {
         this.timestamp = LocalDateTime.now();
@@ -84,8 +85,9 @@ public class Post {
     public Set<String> getLikedBy() { return likedBy; }
     public void setLikedBy(Set<String> likedBy) { this.likedBy = likedBy; }
 
-    public int getCommentsCount() { return commentsCount; }
-    public void setCommentsCount(int commentsCount) { this.commentsCount = commentsCount; }
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) { this.likes = likes; }
 
-    public int getLikesCount() { return likedBy.size(); }
+    public int getComments() { return comments; }
+    public void setComments(int comments) { this.comments = comments; }
 }
