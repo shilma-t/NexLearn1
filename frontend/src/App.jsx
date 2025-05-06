@@ -13,6 +13,7 @@ import Register from "./pages/LoginPage/Register";
 import Users from "./pages/LoginPage/Users";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/home/Home";
+import Profile from "./components/profile/Profile";
 import LearningPlanForm from './pages/learningplan/LearningPlanForm';
 import LearningPlanDetail from './pages/learningplan/LearningPlanDetail';
 import LearningPlanList from './pages/learningplan/LearningPlanList';
@@ -23,8 +24,6 @@ import AllProgress from './pages/Progress/AllProgress';
 import UserProgress from './pages/Progress/UserProgress';
 import ProgressEdit from './pages/Progress/ProgressEdit';
 import CommentSection from './components/CommentSection';
-
-
 
 // --- PostPage with Comment Section ---
 function PostPage() {
@@ -39,20 +38,19 @@ function PostPage() {
 
 // --- Main App Component ---
 const App = () => {
-  
-
   return (
     <GoogleOAuthProvider clientId="972748929791-jeth90tm8i9lvaa732aescu6veiuqbcd.apps.googleusercontent.com">
       <Router>
-        
         <Navbar />
+        <div className="appContainer">
           <Routes>
             {/* Auth Routes */}
             <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/oauth2-redirect" element={<OAuth2Redirect />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/oauth2-redirect" element={<OAuth2Redirect />} />
 
             {/* Learning Plan Routes */}
             <Route path="/plan/new" element={<LearningPlanForm />} />
@@ -69,7 +67,7 @@ const App = () => {
             {/* Post page with comments */}
             <Route path="/post" element={<PostPage />} />
           </Routes>
-        
+        </div>
       </Router>
     </GoogleOAuthProvider>
   );

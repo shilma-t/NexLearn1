@@ -17,28 +17,42 @@
 }
 
 .sidebarListItem {
-  padding: 10px;
+  padding: 12px 15px;
   cursor: pointer;
   font-weight: 500;
   border-radius: 8px;
-  transition: background-color 0.2s, color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 5px;
 }
 
 .sidebarListItem:hover {
   background-color: #4b0076;
   color: white;
+  transform: translateX(5px);
 }
 
-.sidebarListItem.createItem {
+.sidebarListItem.active {
   background-color: #4b0076;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
+}
+
+.sidebarIcon {
+  font-size: 20px;
+  min-width: 24px;
   text-align: center;
+}
+
+.sidebarText {
+  font-size: 15px;
 }
 
 .sidebarButton {
   width: 100%;
-  padding: 10px;
+  padding: 12px 15px;
   margin-top: 10px;
   background-color: #4b0076;
   color: white;
@@ -46,11 +60,15 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .sidebarButton:hover {
   background-color: #38005a;
+  transform: translateY(-2px);
 }
 
 .sidebarFriendList {
@@ -67,20 +85,70 @@
 .sidebarProfile {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 15px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: rgba(75, 0, 118, 0.1);
+}
+
+.sidebarProfile:hover {
+  background-color: #4b0076;
+  transform: translateX(5px);
 }
 
 .sidebarProfileImg {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #4b0076;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 8px rgba(75, 0, 118, 0.3);
+}
+
+.sidebarProfile:hover .sidebarProfileImg {
+  transform: scale(1.05);
 }
 
 .sidebarProfileName {
-  font-weight: bold;
+  font-weight: 600;
   color: #fff;
+  font-size: 16px;
+}
+
+.sidebarDivider {
+  border: none;
+  height: 1px;
+  background-color: #333;
+  margin: 20px 0;
+}
+
+.createItem {
+  background-color: rgba(75, 0, 118, 0.2);
+  margin-top: 10px;
+}
+
+.createItem:hover {
+  background-color: #4b0076;
+}
+
+/* Custom scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #4b0076;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #38005a;
 }

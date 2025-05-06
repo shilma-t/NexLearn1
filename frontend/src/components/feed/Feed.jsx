@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import "./feed.css";
 import axios from "axios";
 import CreatePostModal from "../../pages/Posts/CreatePostModal";
+import Post from "../post/Post";
+import Share from "../share/Share";
+import { getSession, isLoggedIn } from "../../utils/SessionManager";
 
 export default function Feed() {
   const [caption, setCaption] = useState("");
@@ -17,32 +20,27 @@ export default function Feed() {
   const [showComments, setShowComments] = useState({});
   const [comments, setComments] = useState({});
 
-  // Get user info from Google session
-  const getUserInfo = () => {
-    const sessionData = localStorage.getItem('skillhub_user_session');
-    if (sessionData) {
-      try {
-        const userData = JSON.parse(sessionData);
-        return {
-          userId: userData.email,
-          username: userData.name,
-          profilePic: userData.picture
-        };
-      } catch (e) {
-        console.error("Error parsing session:", e);
-      }
-    }
-    return {
-      userId: null,
-      username: null,
-      profilePic: null
-    };
-  };
-
-  const { userId, username, profilePic } = getUserInfo();
   const API_BASE_URL = "http://localhost:9006/api";
   const POSTS_URL = `${API_BASE_URL}/posts`;
   const COMMENTS_URL = `${API_BASE_URL}/comments`;
+
+  // Get user info from session
+  const getUserInfo = () => {
+    if (!isLoggedIn()) {
+      return null;
+    }
+    const sessionData = getSession();
+    if (sessionData) {
+      return {
+        userId: sessionData.email,
+        username: sessionData.name,
+        profilePic: sessionData.picture
+      };
+    }
+    return null;
+  };
+
+  const { userId, username, profilePic } = getUserInfo();
 
   useEffect(() => {
     const handler = () => setShowCreateModal(true);
@@ -113,114 +111,116 @@ export default function Feed() {
   };
 
   const fetchPosts = async () => {
+    const userInfo = getUserInfo();
+    if (!userInfo) {
+      setError("Please login to view posts");
+      return;
+    }
+
     try {
       const res = await axios.get(POSTS_URL, {
         withCredentials: true,
       });
+      
       if (res.data) {
-        // Set posts immediately with default values
-        const postsWithDefaults = res.data.map(post => ({
-          ...post,
-          comments: 0,
-          likes: 0,
-          likedBy: []
-        }));
-        setPosts(postsWithDefaults);
+        // Sort posts by newest first and add user info
+        const sortedPosts = res.data
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .map(post => ({
+            ...post,
+            comments: 0,
+            likes: 0,
+            likedBy: [],
+            userProfilePic: post.userProfilePic || "https://via.placeholder.com/40",
+            username: post.username || "Unknown User"
+          }));
 
-        // Fetch interactions in smaller batches to avoid overwhelming the server
-        const batchSize = 3;
-        for (let i = 0; i < res.data.length; i += batchSize) {
-          const batch = res.data.slice(i, i + batchSize);
-          await Promise.all(
-            batch.map(async (post) => {
-              try {
-                const commentsRes = await axios.get(`${COMMENTS_URL}/post/${post.id}`, {
-                  withCredentials: true,
-                });
-                if (commentsRes.data) {
-                  const comments = commentsRes.data;
-                  const postComments = comments.filter(c => c.type === 'comment');
-                  const postLikes = comments.filter(c => c.type === 'like');
-                  
-                  // Update posts state
-                  setPosts(prevPosts => 
-                    prevPosts.map(p => 
-                      p.id === post.id ? {
-                        ...p,
-                        comments: postComments.length,
-                        likes: postLikes.length,
-                        likedBy: postLikes.map(c => c.userId)
-                      } : p
-                    )
-                  );
+        setPosts(sortedPosts);
 
-                  // Update comments state
-                  setComments(prev => ({
-                    ...prev,
-                    [post.id]: postComments
-                  }));
-                }
-              } catch (err) {
-                console.error(`Error fetching interactions for post ${post.id}:`, err);
-                // Don't update state on error, keep existing values
+        // Fetch interactions for each post
+        const postInteractions = await Promise.all(
+          sortedPosts.map(async (post) => {
+            try {
+              const commentsRes = await axios.get(`${COMMENTS_URL}/post/${post.id}`, {
+                withCredentials: true,
+              });
+              if (commentsRes.data) {
+                const comments = commentsRes.data;
+                return {
+                  postId: post.id,
+                  comments: comments.filter(c => c.type === 'comment'),
+                  likes: comments.filter(c => c.type === 'like'),
+                  likedBy: comments
+                    .filter(c => c.type === 'like')
+                    .map(c => c.userId)
+                };
               }
-            })
-          );
-          // Add a small delay between batches
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
+            } catch (err) {
+              console.error(`Error fetching interactions for post ${post.id}:`, err);
+            }
+            return {
+              postId: post.id,
+              comments: [],
+              likes: [],
+              likedBy: []
+            };
+          })
+        );
+
+        // Update posts with interactions
+        setPosts(prevPosts => 
+          prevPosts.map(post => {
+            const interactions = postInteractions.find(i => i.postId === post.id);
+            if (interactions) {
+              return {
+                ...post,
+                comments: interactions.comments.length,
+                likes: interactions.likes.length,
+                likedBy: interactions.likedBy
+              };
+            }
+            return post;
+          })
+        );
       }
     } catch (err) {
       console.error("Error fetching posts:", err);
-      if (err.response?.status === 401) {
-        setError("Please login to view posts");
-      } else {
-        setError("Failed to fetch posts. Please try again.");
-      }
+      setError("Failed to fetch posts. Please try again.");
     }
   };
 
-  const handleShare = async () => {
-    if (!userId) {
+  const handleShare = async (newPost) => {
+    const userInfo = getUserInfo();
+    if (!userInfo) {
       setError("Please login to share a post");
       return;
     }
 
-    if (!caption.trim() && media.length === 0) {
-      setError("Please add a caption or media to share");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("caption", caption);
-    formData.append("userId", userId);
-    formData.append("username", username);
-    formData.append("profilePic", profilePic);
-
-    if (media.length > 0) {
-      media.forEach((file) => {
-        formData.append("file", file);
-      });
-    }
-
     try {
-      const res = await axios.post(`${POSTS_URL}/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const res = await axios.post(POSTS_URL, {
+        ...newPost,
+        userId: userInfo.userId,
+        username: userInfo.username,
+        userProfilePic: userInfo.profilePic,
+        timestamp: new Date().toISOString()
+      }, {
         withCredentials: true,
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity
       });
+
       if (res.data) {
-        setCaption("");
-        setMedia([]);
-        setError(null);
-        fetchPosts();
+        // Add the new post at the beginning of the list
+        setPosts(prevPosts => [{
+          ...res.data,
+          comments: 0,
+          likes: 0,
+          likedBy: [],
+          userProfilePic: userInfo.profilePic,
+          username: userInfo.username
+        }, ...prevPosts]);
       }
     } catch (err) {
-      console.error("Error posting:", err);
-      setError(err.response?.data || "Failed to create post. Please try again.");
+      console.error("Error sharing post:", err);
+      setError("Failed to share post. Please try again.");
     }
   };
 
@@ -504,147 +504,26 @@ export default function Feed() {
     });
   }, [showComments]);
 
+  if (!getUserInfo()) {
+    return (
+      <div className="feed">
+        <div className="error-message">Please login to view posts</div>
+      </div>
+    );
+  }
+
   return (
     <div className="feed">
-      {error && (
-        <div className="error-message" onClick={() => setError(null)}>
-          {error}
-        </div>
-      )}
       <div className="feedWrapper">
-        <div className="shareBox">
-          <input
-            className="shareInput"
-            placeholder="What's on your mind?"
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-          />
-          <input
-            type="file"
-            accept="image/*,video/*"
-            multiple
-            onChange={handleMediaChange}
-          />
-          <button className="shareButton" onClick={handleShare}>
-            Share
-          </button>
-        </div>
-
-        {posts.map((post, index) => (
-          <div className="postCard" key={post.id || `post-${index}`}>
-            <div className="postHeader">
-              <div className="postOptionsWrapper">
-                <button
-                  className="postOptionsBtn"
-                  onClick={() =>
-                    setPosts((prev) =>
-                      prev.map((p) =>
-                        p.id === post.id
-                          ? { ...p, showOptions: !p.showOptions }
-                          : { ...p, showOptions: false }
-                      )
-                    )
-                  }
-                >
-                  ⋯
-                </button>
-
-                {post.showOptions && (
-                  <div className="postDropdown">
-                    <button onClick={() => handleEdit(post)}>✏️ Edit</button>
-                    <button onClick={() => handleDelete(post.id)}>🗑️ Delete</button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <p>{post.caption}</p>
-
-            {post.mediaUrls &&
-              post.mediaUrls.map((url, mediaIndex) => (
-                <img 
-                  key={`${post.id}-media-${mediaIndex}`} 
-                  src={url} 
-                  alt={`Media ${mediaIndex + 1}`} 
-                  className="postMedia" 
-                />
-              ))}
-
-            <div className="postActions">
-              <button 
-                className={`likeBtn ${post.likedBy?.includes(userId) ? 'liked' : ''}`}
-                onClick={() => handleLike(post.id)}
-              >
-                ❤️ {post.likes || 0}
-              </button>
-              <button 
-                className="commentBtn"
-                onClick={() => toggleComments(post.id)}
-              >
-                💬 {post.comments || 0}
-              </button>
-              <button className="shareBtn">🔗</button>
-              <button className="saveBtn">📑</button>
-            </div>
-
-            {showComments[post.id] && (
-              <div className="commentsSection">
-                <div className="commentsList">
-                  {comments[post.id]?.map((comment, idx) => (
-                    <div key={idx} className="comment">
-                      <span className="commentUsername">{comment.username}</span>
-                      <span className="commentContent">{comment.content}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="commentInput">
-                  <input
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handleComment(post.id);
-                      }
-                    }}
-                  />
-                  <button onClick={() => handleComment(post.id)}>Post</button>
-                </div>
-              </div>
-            )}
-
-            <p className="postTime">
-              {new Date(post.timestamp).toLocaleString()}
-            </p>
-          </div>
-        ))}
-
-        {editMode && (
-          <div className="modalOverlay">
-            <div className="modalContent">
-              <h3>Edit Post</h3>
-              <textarea
-                className="shareInput"
-                placeholder="Edit your caption"
-                value={editCaption}
-                onChange={(e) => setEditCaption(e.target.value)}
-              />
-              <input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                onChange={handleEditMediaChange}
-              />
-              <div className="modalActions">
-                <button onClick={handleUpdate}>Update Post</button>
-                <button className="cancelBtn" onClick={() => setEditMode(false)}>
-                  Cancel
-                </button>
-              </div>
-            </div>
+        {error && (
+          <div className="error-message" onClick={() => setError(null)}>
+            {error}
           </div>
         )}
+        <Share onShare={handleShare} />
+        {posts.map((post) => (
+          <Post key={post.id} post={post} />
+        ))}
       </div>
 
       {showCreateModal && (

@@ -1,14 +1,14 @@
 .feed {
-  flex: 5.5;
-  overflow-y: auto;
+  flex: 5;
   padding: 20px;
-  background-color: #121212;
-  color: #f0f0f0;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .feedWrapper {
-  max-width: 600px; /* Reduced width for a more compact feed */
-  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .shareBox {
@@ -45,10 +45,9 @@
 }
 
 .postCard {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
@@ -56,80 +55,97 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #efefef;
 }
 
-.postUser {
+.postUserInfo {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.profilePic {
-  width: 35px; /* Adjusted size */
-  height: 35px; /* Adjusted size */
+.userProfilePic {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #4b0076;
+}
+
+.postUsername {
+  font-weight: 600;
+  color: #262626;
+}
+
+.postMediaContainer {
+  width: 100%;
+  max-height: 600px;
+  overflow: hidden;
 }
 
 .postMedia {
   width: 100%;
-  max-height: 500px;
-  object-fit: contain;
-  margin: 10px 0;
-  border-radius: 5px;
+  height: auto;
+  object-fit: cover;
 }
 
 .postActions {
   display: flex;
-  gap: 20px;
-  margin: 15px 0;
+  padding: 8px 16px;
+  gap: 16px;
 }
 
 .postActions button {
   background: none;
   border: none;
+  font-size: 24px;
   cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background-color 0.2s;
+  padding: 8px;
+  transition: transform 0.2s;
 }
 
 .postActions button:hover {
-  background-color: #f0f2f5;
+  transform: scale(1.1);
 }
 
 .likeBtn.liked {
-  color: #e41e3f;
+  color: #ed4956;
+}
+
+.postCaption {
+  padding: 0 16px 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.captionUsername {
+  font-weight: 600;
+  color: #262626;
+}
+
+.captionText {
+  color: #262626;
 }
 
 .commentsSection {
-  padding: 10px 15px;
-  border-top: 1px solid #dbdbdb;
-  background-color: #fff;
+  border-top: 1px solid #efefef;
+  padding: 8px 16px;
 }
 
 .commentsList {
   max-height: 200px;
   overflow-y: auto;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .comment {
   display: flex;
+  gap: 8px;
   margin-bottom: 8px;
-  font-size: 14px;
-  line-height: 1.4;
 }
 
 .commentUsername {
   font-weight: 600;
-  margin-right: 8px;
   color: #262626;
 }
 
@@ -139,17 +155,17 @@
 
 .commentInput {
   display: flex;
-  align-items: center;
-  border-top: 1px solid #dbdbdb;
-  padding-top: 10px;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid #efefef;
 }
 
 .commentInput input {
   flex: 1;
   border: none;
-  padding: 8px 0;
-  font-size: 14px;
   outline: none;
+  padding: 8px;
+  font-size: 14px;
 }
 
 .commentInput button {
@@ -157,13 +173,8 @@
   border: none;
   color: #0095f6;
   font-weight: 600;
-  font-size: 14px;
-  padding: 0 8px;
   cursor: pointer;
-}
-
-.commentInput button:hover {
-  color: #00376b;
+  padding: 8px;
 }
 
 .commentInput button:disabled {
@@ -171,7 +182,54 @@
   cursor: default;
 }
 
-/* Scrollbar styling */
+.postTime {
+  color: #8e8e8e;
+  font-size: 12px;
+  padding: 0 16px 12px;
+}
+
+.postOptionsBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.postDropdown {
+  position: absolute;
+  right: 16px;
+  top: 40px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.postDropdown button {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.postDropdown button:hover {
+  background: #fafafa;
+}
+
+.error-message {
+  background: #ed4956;
+  color: white;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+/* Custom scrollbar for comments */
 .commentsList::-webkit-scrollbar {
   width: 6px;
 }
@@ -187,12 +245,6 @@
 
 .commentsList::-webkit-scrollbar-thumb:hover {
   background: #555;
-}
-
-.postTime {
-  color: #65676b;
-  font-size: 12px;
-  margin-top: 10px;
 }
 
 .modalOverlay {
@@ -243,50 +295,4 @@
 .modalActions .cancelBtn {
   background-color: #e4e6eb;
   color: #050505;
-}
-
-.error-message {
-  background-color: #ff4444;
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.postOptionsWrapper {
-  position: relative;
-}
-
-.postOptionsBtn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.postDropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-}
-
-.postDropdown button {
-  display: block;
-  width: 100%;
-  padding: 10px 20px;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-}
-
-.postDropdown button:hover {
-  background-color: #f0f2f5;
 }
