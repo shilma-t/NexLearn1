@@ -14,7 +14,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/plans")
-@CrossOrigin
+@CrossOrigin("http://localhost:5173")
 public class LearningPlanController {
 
     @Autowired

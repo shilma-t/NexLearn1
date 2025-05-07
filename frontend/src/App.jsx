@@ -88,7 +88,7 @@ const App = () => {
             <Route path="/edit-progress/:id" element={<ProgressEdit />} />
 
             {/* Post page with comments */}
-            <Route path="/post" element={<PostPage />} />
+            <Route path="/comment" element={<PostPage />} />
           </Routes>
         </Container>
       </Router>

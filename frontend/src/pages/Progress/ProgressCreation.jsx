@@ -76,7 +76,7 @@ const ProgressCreation = () => {
 
     // Common validations
     if (!title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = 'Title is Required';
       isValid = false;
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/progress")
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("http://localhost:5173")
 public class ProgressUpdateController {
 
     private final ProgressUpdateService service;

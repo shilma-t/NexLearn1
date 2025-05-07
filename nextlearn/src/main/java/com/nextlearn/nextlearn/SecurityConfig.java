@@ -25,26 +25,26 @@ public class SecurityConfig {
     }
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors().and()
-        .csrf().disable()
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login", "/oauth2/**", "/login/oauth2/code/google", "/api/posts/**").permitAll()
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 👉 ADD THIS LINE
-            .anyRequest().authenticated()
-        )
-        .oauth2Login(oauth2 -> oauth2
-            .successHandler(successHandler)
-            .failureHandler((request, response, exception) -> {
-                exception.printStackTrace();
-                response.sendRedirect("/login?error");
-            })
-        );
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors().and()
+                .csrf().disable()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/register", "/auth/login", "/oauth2/**", "/login/oauth2/code/google",
+                                "/api/posts/**", "/api/progress/**")
+                        .permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 👉 ADD THIS
+                                                                                                         // LINE
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(successHandler)
+                        .failureHandler((request, response, exception) -> {
+                            exception.printStackTrace();
+                            response.sendRedirect("/login?error");
+                        }));
 
-    return http.build();
-}
-
+        return http.build();
+    }
 
     // CORS configuration allowing localhost:5173 (React frontend)
     @Bean
