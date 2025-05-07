@@ -81,7 +81,7 @@ const LearningPlanForm = ({ onCancel }) => {
     if (onCancel) {
       onCancel();
     } else {
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 
