@@ -1,22 +1,14 @@
 import React, { useState } from 'react';
-import { Modal, Button, Alert } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 
-const SharePlanModal = ({ show, onHide, onSubmit }) => {
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+const SharePlanModal = ({ show, onHide, onShare }) => {
+  const [userId, setUserId] = useState('');
 
-  const handleSubmit = async () => {
-    try {
-      setError(''); // Clear any previous errors
-      await onSubmit();
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        onHide();
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to share plan:', err);
-      setError('Failed to share plan. Please try again.');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (userId.trim()) {
+      onShare(userId);
+      setUserId('');
     }
   };
 
@@ -25,25 +17,28 @@ const SharePlanModal = ({ show, onHide, onSubmit }) => {
       <Modal.Header closeButton>
         <Modal.Title>Share Learning Plan</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        {error && <Alert variant="danger">{error}</Alert>}
-        
-        {success ? (
-          <Alert variant="success">
-            Plan shared successfully! You can view it in the "View Shared Plans" tab.
-          </Alert>
-        ) : (
-          <div>
-            <p>This plan will be available in the "View Shared Plans" tab.</p>
-            <Button variant="primary" onClick={handleSubmit}>
-              Share Plan
-            </Button>
-            <Button variant="outline-secondary" className="ms-2" onClick={onHide}>
-              Cancel
-            </Button>
-          </div>
-        )}
-      </Modal.Body>
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>User ID to share with</Form.Label>
+            <Form.Control
+              type="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="Enter user ID"
+              required
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onHide}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit">
+            Share
+          </Button>
+        </Modal.Footer>
+      </Form>
     </Modal>
   );
 };

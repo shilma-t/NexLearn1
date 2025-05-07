@@ -14,7 +14,7 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow all origins for development
+        // Allow specific origin
         config.addAllowedOrigin("http://localhost:5173");
         
         // Allow credentials
@@ -25,6 +25,9 @@ public class CorsConfig {
         
         // Allow all methods
         config.addAllowedMethod("*");
+        
+        // Set max age
+        config.setMaxAge(3600L);
         
         // Apply this configuration to all paths
         source.registerCorsConfiguration("/**", config);

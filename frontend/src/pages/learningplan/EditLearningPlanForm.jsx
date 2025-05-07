@@ -1,90 +1,103 @@
 // src/components/EditLearningPlanForm.js
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
-import TopicForm from './TopicForm';
-
-const API_URL = 'http://localhost:9006/api';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
+import axiosInstance from '../../utils/axios';
 
 const EditLearningPlanForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [plan, setPlan] = useState(null);
+  const [plan, setPlan] = useState({
+    title: '',
+    description: '',
+    learningTopics: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchPlan = async () => {
+      if (!id || id === 'undefined') {
+        setError('Invalid plan ID');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await axios.get(`${API_URL}/plans/${id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-        setPlan(response.data);
+        const response = await axiosInstance.get(`/plans/${id}`);
+        if (response && response.data) {
+          setPlan(response.data);
+        } else {
+          setError('No data received from server');
+        }
       } catch (err) {
-        setError('Failed to load learning plan');
-        console.error(err);
+        console.error('Error fetching plan:', err);
+        setError(`Failed to load learning plan: ${err.message || 'Unknown error'}`);
       } finally {
         setLoading(false);
       }
     };
+
     fetchPlan();
   }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPlan(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!id || id === 'undefined') {
+      setError('Invalid plan ID');
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+
     try {
-      await axios.put(`${API_URL}/plans/${plan.id}`, plan, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-      navigate('/');
+      await axiosInstance.put(`/plans/${id}`, plan);
+      navigate(`/plan/${id}`);
     } catch (err) {
-      setError('Failed to update learning plan');
-      console.error(err);
+      console.error('Error updating plan:', err);
+      setError(`Failed to update learning plan: ${err.message || 'Unknown error'}`);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleAddTopic = () => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setPlan(prev => ({
       ...prev,
-      topics: [...prev.topics, {
-        id: Date.now().toString(),
-        name: '',
-        description: '',
-        startDate: null,
-        endDate: null,
-        completed: false,
-        resources: []
-      }]
+      [name]: value
     }));
   };
 
-  const handleTopicChange = (updatedTopic, index) => {
-    setPlan(prev => {
-      const newTopics = [...prev.topics];
-      newTopics[index] = updatedTopic;
-      return { ...prev, topics: newTopics };
-    });
+  const handleTopicChange = (index, field, value) => {
+    const updatedTopics = [...plan.learningTopics];
+    updatedTopics[index] = {
+      ...updatedTopics[index],
+      [field]: value
+    };
+    setPlan(prev => ({
+      ...prev,
+      learningTopics: updatedTopics
+    }));
   };
 
-  const handleRemoveTopic = (index) => {
-    setPlan(prev => {
-      const newTopics = [...prev.topics];
-      newTopics.splice(index, 1);
-      return { ...prev, topics: newTopics };
-    });
+  const addTopic = () => {
+    setPlan(prev => ({
+      ...prev,
+      learningTopics: [
+        ...prev.learningTopics,
+        { title: '', description: '', resources: '' }
+      ]
+    }));
+  };
+
+  const removeTopic = (index) => {
+    setPlan(prev => ({
+      ...prev,
+      learningTopics: prev.learningTopics.filter((_, i) => i !== index)
+    }));
   };
 
   if (loading) {
@@ -92,17 +105,23 @@ const EditLearningPlanForm = () => {
   }
 
   if (error) {
-    return <Alert variant="danger">{error}</Alert>;
-  }
-
-  if (!plan) {
-    return <Alert variant="warning">Learning plan not found</Alert>;
+    return (
+      <Container className="mt-4">
+        <Alert variant="danger">
+          {error}
+          <div className="mt-3">
+            <Button variant="primary" onClick={() => navigate('/plans')}>
+              Return to Plans
+            </Button>
+          </div>
+        </Alert>
+      </Container>
+    );
   }
 
   return (
     <Container className="mt-4">
       <h2>Edit Learning Plan</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Title</Form.Label>
@@ -114,6 +133,7 @@ const EditLearningPlanForm = () => {
             required
           />
         </Form.Group>
+
         <Form.Group className="mb-3">
           <Form.Label>Description</Form.Label>
           <Form.Control
@@ -124,28 +144,69 @@ const EditLearningPlanForm = () => {
             rows={3}
           />
         </Form.Group>
-        
-        <h3 className="mt-4">Topics</h3>
-        {plan.topics.map((topic, index) => (
-          <Card key={topic.id} className="mb-3">
-            <Card.Body>
-              <TopicForm
-                topic={topic}
-                onChange={(updatedTopic) => handleTopicChange(updatedTopic, index)}
-                onRemove={() => handleRemoveTopic(index)}
+
+        <h4>Topics</h4>
+        {plan.learningTopics?.map((topic, index) => (
+          <div key={`topic-${index}`} className="mb-4 p-3 border rounded">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5>Topic {index + 1}</h5>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => removeTopic(index)}
+              >
+                Remove
+              </Button>
+            </div>
+            <Form.Group className="mb-3">
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={topic.title}
+                onChange={(e) => handleTopicChange(index, 'title', e.target.value)}
+                required
               />
-            </Card.Body>
-          </Card>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                value={topic.description}
+                onChange={(e) => handleTopicChange(index, 'description', e.target.value)}
+                rows={2}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Resources</Form.Label>
+              <Form.Control
+                as="textarea"
+                value={topic.resources}
+                onChange={(e) => handleTopicChange(index, 'resources', e.target.value)}
+                rows={2}
+                placeholder="Enter resources (one per line)"
+              />
+            </Form.Group>
+          </div>
         ))}
-        <Button variant="secondary" onClick={handleAddTopic} className="mb-3">
+
+        <Button
+          type="button"
+          variant="outline-primary"
+          onClick={addTopic}
+          className="mb-4"
+        >
           Add Topic
         </Button>
-        
-        <div className="d-flex justify-content-between">
-          <Button variant="primary" type="submit">
-            Update Plan
+
+        <div className="d-flex gap-2">
+          <Button type="submit" variant="primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Changes'}
           </Button>
-          <Button variant="outline-secondary" onClick={() => navigate('/')}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => navigate(`/plan/${id}`)}
+          >
             Cancel
           </Button>
         </div>

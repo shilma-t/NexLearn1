@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../../utils/axios';
 import './LearningPlanList.css';
@@ -6,90 +7,77 @@ import './LearningPlanList.css';
 const LearningPlanList = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await axiosInstance.get('/plans');
+        if (response && response.data) {
+          setPlans(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching plans:', err);
+        setError('Failed to load learning plans');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPlans();
   }, []);
 
-  const fetchPlans = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const sessionData = localStorage.getItem('skillhub_user_session');
-      if (!sessionData) {
-        throw new Error('Please login to view learning plans');
-      }
-
-      const userData = JSON.parse(sessionData);
-      const userId = userData.email;
-
-      const [userPlansResponse, sharedPlansResponse] = await Promise.all([
-        axiosInstance.get(`/plans/user/${userId}`),
-        axiosInstance.get(`/plans/shared/${userId}`)
-      ]);
-
-      const allPlans = [
-        ...userPlansResponse.data,
-        ...sharedPlansResponse.data
-      ];
-
-      setPlans(allPlans);
-    } catch (err) {
-      console.error('Error fetching plans:', err);
-      setError(err.response?.data?.message || 'Failed to fetch learning plans. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
-    return <div className="loading">Loading learning plans...</div>;
+    return <div className="text-center mt-5">Loading...</div>;
   }
 
   if (error) {
-    return (
-      <div className="error-container">
-        <div className="error-message">{error}</div>
-        <button onClick={fetchPlans} className="retry-button">
-          Retry
-        </button>
-      </div>
-    );
+    return <div className="text-center mt-5 text-danger">{error}</div>;
   }
 
   return (
-    <div className="learning-plan-list">
-      <div className="header">
-        <h1>Learning Plans</h1>
-        <Link to="/plan/new" className="create-button">
-          Create New Plan
+    <Container className="mt-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Learning Plans</h2>
+        <Link to="/plan/create">
+          <Button variant="primary">Create New Plan</Button>
         </Link>
       </div>
 
       {plans.length === 0 ? (
-        <div className="no-plans">
-          <p>No learning plans found.</p>
-          <Link to="/plan/new" className="create-first-plan">
-            Create your first learning plan
-          </Link>
+        <div className="text-center mt-5">
+          <p>No learning plans found. Create your first plan!</p>
         </div>
       ) : (
-        <div className="plans-grid">
+        <Row>
           {plans.map((plan) => (
-            <Link to={`/plan/${plan.id}`} key={plan.id} className="plan-card">
-              <h3>{plan.title}</h3>
-              <p>{plan.description}</p>
-              <div className="plan-meta">
-                <span>Created: {new Date(plan.createdAt).toLocaleDateString()}</span>
-                <span>Status: {plan.status}</span>
-              </div>
-            </Link>
+            <Col key={plan._id || plan.id} md={4} className="mb-4">
+              <Card>
+                <Card.Body>
+                  <Card.Title>{plan.title}</Card.Title>
+                  <Card.Text>{plan.description}</Card.Text>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <Link to={`/plan/${plan._id || plan.id}`}>
+                      <Button variant="primary" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
+                    <Link to={`/plan/edit/${plan._id || plan.id}`}>
+                      <Button variant="outline-primary" size="sm">
+                        Edit
+                      </Button>
+                    </Link>
+                  </div>
+                </Card.Body>
+                <Card.Footer className="text-muted">
+                  Created: {new Date(plan.createdAt).toLocaleDateString()}
+                </Card.Footer>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
       )}
-    </div>
+    </Container>
   );
 };
 

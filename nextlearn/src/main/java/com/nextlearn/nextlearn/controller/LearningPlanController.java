@@ -14,7 +14,6 @@ import java.util.Optional;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/plans")
-@CrossOrigin
 public class LearningPlanController {
 
     @Autowired
@@ -44,40 +43,58 @@ public class LearningPlanController {
 
     @PostMapping
     public ResponseEntity<LearningPlan> createPlan(@RequestBody LearningPlan plan) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(learningPlanService.createPlan(plan));
+        try {
+            LearningPlan createdPlan = learningPlanService.createPlan(plan);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdPlan);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<LearningPlan> updatePlan(@PathVariable String id, @RequestBody LearningPlan plan) {
-        // if (!id.equals(plan.getId())) {
-        //     return ResponseEntity.badRequest().build();
-        // }
-        return ResponseEntity.ok(learningPlanService.updatePlan(plan));
+        try {
+            LearningPlan updatedPlan = learningPlanService.updatePlan(plan);
+            return ResponseEntity.ok(updatedPlan);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlan(@PathVariable String id) {
-        learningPlanService.deletePlan(id);
-        return ResponseEntity.noContent().build();
+        try {
+            learningPlanService.deletePlan(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/{planId}/share/{userId}")
     public ResponseEntity<LearningPlan> sharePlan(@PathVariable String planId, @PathVariable String userId) {
-        LearningPlan plan = learningPlanService.sharePlan(planId, userId);
-        if (plan != null) {
-            return ResponseEntity.ok(plan);
+        try {
+            LearningPlan plan = learningPlanService.sharePlan(planId, userId);
+            if (plan != null) {
+                return ResponseEntity.ok(plan);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{planId}/share/{userId}")
     public ResponseEntity<LearningPlan> unsharePlan(@PathVariable String planId, @PathVariable String userId) {
-        LearningPlan plan = learningPlanService.unsharePlan(planId, userId);
-        if (plan != null) {
-            return ResponseEntity.ok(plan);
+        try {
+            LearningPlan plan = learningPlanService.unsharePlan(planId, userId);
+            if (plan != null) {
+                return ResponseEntity.ok(plan);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.notFound().build();
     }
 }
 
