@@ -138,10 +138,42 @@
   margin-bottom: 8px;
 }
 
-.comment {
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.commentActions {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+}
+
+.editCommentBtn,
+.deleteCommentBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.editCommentBtn:hover,
+.deleteCommentBtn:hover {
+  opacity: 1;
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #f8f9fa;
 }
 
 .commentUsername {
@@ -151,6 +183,7 @@
 
 .commentContent {
   color: #262626;
+  word-break: break-word;
 }
 
 .commentInput {

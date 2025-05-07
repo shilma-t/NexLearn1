@@ -410,54 +410,35 @@ export default function Feed() {
         createdAt: new Date().toISOString()
       };
 
-      // Optimistically update UI
-      setComments(prev => ({
-        ...prev,
-        [postId]: [...(prev[postId] || []), newComment]
-      }));
-
-      setPosts(prevPosts => 
-        prevPosts.map(post => {
-          if (post.id === postId) {
-            return {
-              ...post,
-              comments: (post.comments || 0) + 1
-            };
-          }
-          return post;
-        })
-      );
-
-      // Make the API call
+      // Make the API call first
       const res = await axios.post(COMMENTS_URL, newComment, {
         withCredentials: true,
       });
 
-      setCommentText("");
-
-      // Refresh comments to ensure we have the latest data
       if (res.data) {
-        const commentsRes = await axios.get(`${COMMENTS_URL}/post/${postId}`);
-        if (commentsRes.data) {
-          const postComments = commentsRes.data.filter(c => c.type === 'comment');
-          setComments(prev => ({
-            ...prev,
-            [postId]: postComments
-          }));
-        }
+        // Add the new comment with its ID from the response
+        setComments(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), { ...newComment, id: res.data.id }]
+        }));
+
+        setPosts(prevPosts => 
+          prevPosts.map(post => {
+            if (post.id === postId) {
+              return {
+                ...post,
+                comments: (post.comments || 0) + 1
+              };
+            }
+            return post;
+          })
+        );
+
+        setCommentText("");
       }
     } catch (err) {
       console.error("Error adding comment:", err);
       setError("Failed to add comment. Please try again.");
-      // Refresh comments to ensure UI is in sync with server
-      const commentsRes = await axios.get(`${COMMENTS_URL}/post/${postId}`);
-      if (commentsRes.data) {
-        const postComments = commentsRes.data.filter(c => c.type === 'comment');
-        setComments(prev => ({
-          ...prev,
-          [postId]: postComments
-        }));
-      }
     }
   };
 
@@ -470,12 +451,14 @@ export default function Feed() {
         const postComments = res.data.filter(c => c.type === 'comment');
         setComments(prev => ({
           ...prev,
-          [postId]: postComments
+          [postId]: postComments.map(comment => ({
+            ...comment,
+            id: comment._id || comment.id // Handle both MongoDB _id and regular id
+          }))
         }));
       }
     } catch (err) {
       console.error(`Error fetching comments for post ${postId}:`, err);
-      // Don't show error to user, just keep existing comments
     }
   };
 
@@ -491,6 +474,78 @@ export default function Feed() {
       }
       return newState;
     });
+  };
+
+  const handleEditComment = async (postId, commentId, newContent) => {
+    if (!userId) {
+      setError("Please login to edit comments");
+      return;
+    }
+
+    if (!commentId) {
+      setError("Comment ID is missing");
+      return;
+    }
+
+    try {
+      const res = await axios.put(`${COMMENTS_URL}/${commentId}`, {
+        content: newContent,
+        userId,
+        username,
+        type: "comment"
+      }, {
+        withCredentials: true,
+      });
+
+      if (res.data) {
+        // Update the comment in the UI
+        setComments(prev => ({
+          ...prev,
+          [postId]: prev[postId].map(comment => 
+            comment.id === commentId || comment._id === commentId
+              ? { ...comment, content: newContent }
+              : comment
+          )
+        }));
+      }
+    } catch (err) {
+      console.error("Error editing comment:", err);
+      setError("Failed to edit comment. Please try again.");
+    }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    if (!userId) {
+      setError("Please login to delete comments");
+      return;
+    }
+
+    try {
+      await axios.delete(`${COMMENTS_URL}/${commentId}`, {
+        withCredentials: true,
+      });
+
+      // Update the comment count and remove the comment from UI
+      setPosts(prevPosts => 
+        prevPosts.map(post => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              comments: (post.comments || 0) - 1
+            };
+          }
+          return post;
+        })
+      );
+
+      setComments(prev => ({
+        ...prev,
+        [postId]: prev[postId].filter(comment => comment.id !== commentId)
+      }));
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+      setError("Failed to delete comment. Please try again.");
+    }
   };
 
   // Add useEffect to fetch posts when component mounts
@@ -622,7 +677,34 @@ export default function Feed() {
                 <div className="commentsList">
                   {comments[post.id]?.map((comment, idx) => (
                     <div key={idx} className="comment">
-                      <span className="commentUsername">{comment.username}</span>
+                      <div className="commentHeader">
+                        <span className="commentUsername">{comment.username}</span>
+                        {comment.userId === userId && (
+                          <div className="commentActions">
+                            <button
+                              className="editCommentBtn"
+                              onClick={() => {
+                                const newContent = prompt("Edit your comment:", comment.content);
+                                if (newContent && newContent.trim() !== comment.content) {
+                                  handleEditComment(post.id, comment.id, newContent);
+                                }
+                              }}
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              className="deleteCommentBtn"
+                              onClick={() => {
+                                if (window.confirm("Are you sure you want to delete this comment?")) {
+                                  handleDeleteComment(post.id, comment.id);
+                                }
+                              }}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       <span className="commentContent">{comment.content}</span>
                     </div>
                   ))}

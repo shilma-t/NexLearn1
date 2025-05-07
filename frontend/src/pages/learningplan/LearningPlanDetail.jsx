@@ -14,7 +14,7 @@ const LearningPlanDetail = () => {
 
   useEffect(() => {
     const fetchPlan = async () => {
-      if (!id || id === 'undefined') {
+      if (!id) {
         setError('Invalid plan ID');
         setLoading(false);
         return;
@@ -39,19 +39,10 @@ const LearningPlanDetail = () => {
   }, [id]);
 
   const handleEdit = () => {
-    if (!id || id === 'undefined') {
-      setError('Invalid plan ID');
-      return;
-    }
     navigate(`/plan/edit/${id}`);
   };
 
   const handleDelete = async () => {
-    if (!id || id === 'undefined') {
-      setError('Invalid plan ID');
-      return;
-    }
-
     if (window.confirm('Are you sure you want to delete this learning plan?')) {
       try {
         await axiosInstance.delete(`/plans/${id}`);
@@ -68,11 +59,6 @@ const LearningPlanDetail = () => {
   };
 
   const handleShareSubmit = async (userId) => {
-    if (!id || id === 'undefined') {
-      setError('Invalid plan ID');
-      return;
-    }
-
     try {
       await axiosInstance.post(`/plans/${id}/share/${userId}`);
       setShowShareModal(false);
@@ -136,30 +122,30 @@ const LearningPlanDetail = () => {
             <Button variant="success" onClick={handleShare}>
               Share
             </Button>
-          </div>
+      </div>
         </Card.Header>
-        <Card.Body>
+            <Card.Body>
           <Card.Text>{plan.description}</Card.Text>
           <h4>Topics</h4>
           <ListGroup>
             {plan.learningTopics?.map((topic, index) => (
-              <ListGroup.Item key={`topic-${index}`}>
+              <ListGroup.Item key={index}>
                 <h5>{topic.title}</h5>
                 <p>{topic.description}</p>
                 {topic.resources && (
                   <div>
                     <strong>Resources:</strong>
                     <p>{topic.resources}</p>
-                  </div>
+              </div>
                 )}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Card.Body>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+            </Card.Body>
         <Card.Footer>
           <Badge bg="info">Status: {plan.status}</Badge>
         </Card.Footer>
-      </Card>
+          </Card>
 
       <SharePlanModal
         show={showShareModal}

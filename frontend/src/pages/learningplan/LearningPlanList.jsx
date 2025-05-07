@@ -14,7 +14,11 @@ const LearningPlanList = () => {
       try {
         const response = await axiosInstance.get('/plans');
         if (response && response.data) {
-          setPlans(response.data);
+          const formattedPlans = response.data.map(plan => ({
+            ...plan,
+            id: plan._id
+          }));
+          setPlans(formattedPlans);
         }
       } catch (err) {
         console.error('Error fetching plans:', err);
@@ -23,7 +27,7 @@ const LearningPlanList = () => {
         setLoading(false);
       }
     };
-
+  
     fetchPlans();
   }, []);
 
@@ -43,26 +47,26 @@ const LearningPlanList = () => {
           <Button variant="primary">Create New Plan</Button>
         </Link>
       </div>
-
+      
       {plans.length === 0 ? (
         <div className="text-center mt-5">
           <p>No learning plans found. Create your first plan!</p>
         </div>
       ) : (
-        <Row>
+          <Row>
           {plans.map((plan) => (
-            <Col key={plan._id || plan.id} md={4} className="mb-4">
+            <Col key={plan._id} md={4} className="mb-4">
               <Card>
                 <Card.Body>
                   <Card.Title>{plan.title}</Card.Title>
                   <Card.Text>{plan.description}</Card.Text>
                   <div className="d-flex justify-content-between align-items-center">
-                    <Link to={`/plan/${plan._id || plan.id}`}>
+                    <Link to={`/plan/${plan._id}`}>
                       <Button variant="primary" size="sm">
                         View Details
                       </Button>
                     </Link>
-                    <Link to={`/plan/edit/${plan._id || plan.id}`}>
+                    <Link to={`/plan/edit/${plan._id}`}>
                       <Button variant="outline-primary" size="sm">
                         Edit
                       </Button>
@@ -73,9 +77,9 @@ const LearningPlanList = () => {
                   Created: {new Date(plan.createdAt).toLocaleDateString()}
                 </Card.Footer>
               </Card>
-            </Col>
+              </Col>
           ))}
-        </Row>
+          </Row>
       )}
     </Container>
   );

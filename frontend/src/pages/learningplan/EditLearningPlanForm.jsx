@@ -18,7 +18,7 @@ const EditLearningPlanForm = () => {
 
   useEffect(() => {
     const fetchPlan = async () => {
-      if (!id || id === 'undefined') {
+      if (!id) {
         setError('Invalid plan ID');
         setLoading(false);
         return;
@@ -44,11 +44,6 @@ const EditLearningPlanForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!id || id === 'undefined') {
-      setError('Invalid plan ID');
-      return;
-    }
-
     setSaving(true);
     setError('');
 
@@ -146,8 +141,8 @@ const EditLearningPlanForm = () => {
         </Form.Group>
 
         <h4>Topics</h4>
-        {plan.learningTopics?.map((topic, index) => (
-          <div key={`topic-${index}`} className="mb-4 p-3 border rounded">
+        {plan.learningTopics.map((topic, index) => (
+          <div key={index} className="mb-4 p-3 border rounded">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h5>Topic {index + 1}</h5>
               <Button
