@@ -82,6 +82,40 @@ const LearningPlanList = () => {
     </Col>
   );
 
+  const renderViewShared = (plan, isShared = false) => (
+    <Col md={4} className="mb-4" key={plan.id}>
+      <Card className="plan-card h-100">
+        <Card.Body>
+          <Card.Title className="plan-title">{plan.title}</Card.Title>
+          <Card.Text className="plan-description">{plan.description}</Card.Text>
+          <div className="mb-2">
+            <small className="text-muted">
+              {plan.topics.length} topics |{' '}
+              {plan.topics.filter(t => t.completed).length} completed
+            </small>
+          </div>
+          {isShared && (
+            <Badge bg="info" className="shared-badge mb-2">Shared Plan</Badge>
+          )}
+          <div className="card-buttons mt-3">
+            <Link to={`/plan/${plan.id}`}>
+              <Button variant="primary" className="btn-view-details">View Details</Button>
+            </Link>
+            {/* {!isShared && (
+              <Button
+                variant="danger"
+                className="btn-delete ms-2"
+                onClick={() => handleDelete(plan.id)}
+              >
+                Delete
+              </Button>
+            )} */}
+          </div>
+        </Card.Body>
+      </Card>
+    </Col>
+  );
+
   if (loading) {
     return <div className="text-center mt-5">Loading...</div>;
   }
@@ -118,7 +152,7 @@ const LearningPlanList = () => {
           <Tab eventKey="sharedPlans" title="View Shared Plans">
             <Row>
               {sharedPlans.length > 0 ? (
-                sharedPlans.map(plan => renderPlanCard(plan, true))
+                sharedPlans.map(plan => renderViewShared(plan, true))
               ) : (
                 <Col>
                   <Alert variant="info">
