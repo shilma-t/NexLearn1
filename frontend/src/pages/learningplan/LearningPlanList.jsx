@@ -40,8 +40,6 @@ const LearningPlanList = () => {
             <Link to={`/plan/${plan.id}`}>
               <Button variant="primary">View Details</Button>
             </Link>
-            
-            <Button variant="danger" className="ms-2">Delete</Button>
        
           </div>
         </Card.Body>
