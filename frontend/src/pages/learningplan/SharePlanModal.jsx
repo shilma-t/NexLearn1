@@ -22,29 +22,34 @@ const SharePlanModal = ({ show, onHide, onSubmit }) => {
 
   return (
     <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>Share Learning Plan</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {error && <Alert variant="danger">{error}</Alert>}
-        
-        {success ? (
-          <Alert variant="success">
-            Plan shared successfully! You can view it in the "View Shared Plans" tab.
-          </Alert>
-        ) : (
-          <div>
-            <p>This plan will be available in the "View Shared Plans" tab.</p>
-            <Button variant="primary" onClick={handleSubmit}>
-              Share Plan
-            </Button>
-            <Button variant="outline-secondary" className="ms-2" onClick={onHide}>
-              Cancel
-            </Button>
-          </div>
-        )}
-      </Modal.Body>
-    </Modal>
+  <Modal.Header closeButton>
+    <Modal.Title>Share Learning Plan</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {error && (
+      <Alert variant="danger" className="alert-custom-white-danger"> {/* Added custom class */}
+        {error}
+      </Alert>
+    )}
+    
+    {success ? (
+      <Alert variant="success" className="alert-custom-white-success"> {/* Added custom class */}
+        Plan shared successfully! You can view it in the "View Shared Plans" tab.
+      </Alert>
+    ) : (
+      <div>
+        <p>This plan will be available in the "View Shared Plans" tab.</p>
+        <Button variant="primary" onClick={handleSubmit}>
+          Share Plan
+        </Button>
+        <Button variant="outline-secondary" className="ms-2" onClick={onHide}>
+          Cancel
+        </Button>
+      </div>
+    )}
+  </Modal.Body>
+</Modal>
+
   );
 };
 

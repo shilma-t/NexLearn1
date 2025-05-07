@@ -30,7 +30,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         .cors().and()
         .csrf().disable()
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login", "/oauth2/**", "/login/oauth2/code/google", "/api/posts/**").permitAll()
+            .requestMatchers("/auth/register", "/auth/login", "/oauth2/**", "/login/oauth2/code/google", "/api/posts/**","/api/plans/**").permitAll()
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 👉 ADD THIS LINE
             .anyRequest().authenticated()
         )

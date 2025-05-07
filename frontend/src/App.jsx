@@ -68,7 +68,7 @@ const App = () => {
         <Container fluid="md" className="mt-4 mb-5 flex-grow-1">
           <Routes>
             {/* Auth Routes */}
-            <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
+            <Route path="/" element={<Navigate to={isLoggedIn ? "/login" : "/login"} />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
@@ -88,7 +88,7 @@ const App = () => {
             <Route path="/edit-progress/:id" element={<ProgressEdit />} />
 
             {/* Post page with comments */}
-            <Route path="/post" element={<PostPage />} />
+            <Route path="/comment" element={<PostPage />} />
           </Routes>
         </Container>
       </Router>
