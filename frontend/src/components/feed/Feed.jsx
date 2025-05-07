@@ -7,10 +7,6 @@ export default function Feed() {
   const [caption, setCaption] = useState("");
   const [media, setMedia] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [editMode, setEditMode] = useState(false);
-  const [editPostId, setEditPostId] = useState(null);
-  const [editCaption, setEditCaption] = useState("");
-  const [editMedia, setEditMedia] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [error, setError] = useState(null);
   const [commentText, setCommentText] = useState("");
@@ -105,11 +101,6 @@ export default function Feed() {
     );
     
     setMedia(compressedFiles);
-  };
-
-  const handleEditMediaChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 3);
-    setEditMedia(files);
   };
 
   const fetchPosts = async () => {
@@ -233,83 +224,6 @@ export default function Feed() {
     } catch (err) {
       console.error("Error posting:", err);
       setError(err.response?.data || "Failed to create post. Please try again.");
-    }
-  };
-
-  const handleEdit = (post) => {
-    if (!post.id) {
-      setError("Post ID is missing");
-      return;
-    }
-    setEditMode(true);
-    setEditPostId(post.id);
-    setEditCaption(post.caption || "");
-    setEditMedia([]);
-    setError(null);
-  };
-
-  const handleUpdate = async () => {
-    if (!editPostId) {
-      setError("Edit post ID is missing");
-      return;
-    }
-
-    if (!editCaption.trim() && editMedia.length === 0) {
-      setError("Please add a caption or media to update");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("caption", editCaption);
-
-    if (editMedia.length > 0) {
-    editMedia.forEach((file) => {
-      formData.append("file", file);
-    });
-    }
-
-    try {
-      const res = await axios.put(
-        `${POSTS_URL}/${editPostId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-      if (res.data) {
-      setEditMode(false);
-        setEditPostId(null);
-        setEditCaption("");
-        setEditMedia([]);
-        setError(null);
-      fetchPosts();
-      }
-    } catch (err) {
-      console.error("Error updating post:", err);
-      setError(err.response?.data || "Failed to update post. Please try again.");
-    }
-  };
-
-  const handleDelete = async (postId) => {
-    if (!postId) {
-      setError("Post ID is missing");
-      return;
-    }
-
-    try {
-      const res = await axios.delete(`${POSTS_URL}/${postId}`, {
-        withCredentials: true,
-      });
-      if (res.status === 200) {
-        setError(null);
-      fetchPosts();
-      }
-    } catch (err) {
-      console.error("Error deleting post:", err);
-      setError(err.response?.data || "Failed to delete post. Please try again.");
     }
   };
 
@@ -608,33 +522,6 @@ export default function Feed() {
                 />
                 <span className="postUsername">{post.username}</span>
               </div>
-              <div className="postOptionsWrapper">
-                <button
-                  className="postOptionsBtn"
-                  onClick={() =>
-                    setPosts((prev) =>
-                      prev.map((p) =>
-                        p.id === post.id
-                          ? { ...p, showOptions: !p.showOptions }
-                          : { ...p, showOptions: false }
-                      )
-                    )
-                  }
-                >
-                  ⋯
-                </button>
-
-                {post.showOptions && (
-                  <div className="postDropdown">
-                    {post.userId === userId && (
-                      <>
-                    <button onClick={() => handleEdit(post)}>✏️ Edit</button>
-                    <button onClick={() => handleDelete(post.id)}>🗑️ Delete</button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
             </div>
 
             {post.mediaUrls && post.mediaUrls.length > 0 && (
@@ -646,7 +533,7 @@ export default function Feed() {
                     alt={`Media ${mediaIndex + 1}`} 
                     className="postMedia" 
                   />
-              ))}
+                ))}
               </div>
             )}
 
@@ -736,32 +623,6 @@ export default function Feed() {
             </p>
           </div>
         ))}
-
-        {editMode && (
-          <div className="modalOverlay">
-            <div className="modalContent">
-              <h3>Edit Post</h3>
-              <textarea
-                className="shareInput"
-                placeholder="Edit your caption"
-                value={editCaption}
-                onChange={(e) => setEditCaption(e.target.value)}
-              />
-              <input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                onChange={handleEditMediaChange}
-              />
-              <div className="modalActions">
-                <button onClick={handleUpdate}>Update Post</button>
-                <button className="cancelBtn" onClick={() => setEditMode(false)}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {showCreateModal && (

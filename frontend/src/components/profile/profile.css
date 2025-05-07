@@ -101,10 +101,16 @@
   font-size: 16px;
 }
 
-.delete-post {
+.post-actions {
   position: absolute;
   top: 10px;
   right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.edit-post,
+.delete-post {
   background: none;
   border: none;
   color: white;
@@ -115,8 +121,234 @@
   transition: opacity 0.2s ease;
 }
 
+.edit-post:hover,
 .delete-post:hover {
   opacity: 1;
+}
+
+.postModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.postModalContent {
+  background-color: white;
+  display: flex;
+  max-width: 1000px;
+  max-height: 90vh;
+  width: 90%;
+  height: 80vh;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.postModalLeft {
+  flex: 1.5;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.postModalImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.postModalRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #dbdbdb;
+}
+
+.postModalHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid #dbdbdb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.postModalUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.postModalUserPic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.postModalUsername {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.postModalActions {
+  display: flex;
+  gap: 10px;
+}
+
+.postModalCaption {
+  padding: 16px;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.captionUsername {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.captionText {
+  font-size: 14px;
+}
+
+.postModalInteractions {
+  padding: 16px;
+  border-bottom: 1px solid #dbdbdb;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.likeBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.likeBtn.liked {
+  color: #ed4956;
+}
+
+.postTime {
+  color: #8e8e8e;
+  font-size: 12px;
+}
+
+.postModalComments {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.commentsList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.comment {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.commentUsername {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.commentInput {
+  padding: 16px;
+  border-top: 1px solid #dbdbdb;
+  display: flex;
+  gap: 8px;
+}
+
+.commentInput input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.commentInput button {
+  background: none;
+  border: none;
+  color: #0095f6;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.commentInput button:disabled {
+  color: #b2dffc;
+  cursor: default;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modalContent h3 {
+  margin-bottom: 15px;
+}
+
+.shareInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.modalActions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modalActions button:first-child {
+  background-color: #1877f2;
+  color: white;
+}
+
+.modalActions .cancelBtn {
+  background-color: #e4e6eb;
+  color: #050505;
 }
 
 .no-posts {
@@ -166,6 +398,21 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 2px;
     padding: 0;
+  }
+
+  .postModalContent {
+    flex-direction: column;
+    height: 90vh;
+  }
+
+  .postModalLeft {
+    flex: 1;
+  }
+
+  .postModalRight {
+    flex: 1;
+    border-left: none;
+    border-top: 1px solid #dbdbdb;
   }
 }
 
