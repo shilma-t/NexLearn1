@@ -145,7 +145,7 @@ const EditLearningPlanForm = () => {
           <Button variant="primary" type="submit">
             Update Plan
           </Button>
-          <Button variant="outline-secondary" onClick={() => navigate('/')}>
+          <Button variant="outline-secondary" onClick={() => navigate('/dashboard')}>
             Cancel
           </Button>
         </div>
