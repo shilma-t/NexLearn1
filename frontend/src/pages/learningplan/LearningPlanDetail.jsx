@@ -66,7 +66,7 @@ const LearningPlanDetail = () => {
             'Access-Control-Allow-Origin': '*'
           }
         });
-        navigate('/');
+        navigate('/dashboard');
       } catch (err) {
         setError(`Failed to delete learning plan: ${err.message || 'Unknown error'}`);
         console.error('Error deleting plan:', err);
