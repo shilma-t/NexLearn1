@@ -76,7 +76,7 @@ const ProgressCreation = () => {
 
     // Common validations
     if (!title.trim()) {
-      newErrors.title = 'Title is Required';
+      newErrors.title = 'Title is required';
       isValid = false;
     }
 
@@ -282,7 +282,7 @@ const ProgressCreation = () => {
       });
 
       if (response.ok) {
-        console.log('Progress update created successfully!');
+        console.log('Progress update created !');
         navigate('/all-progress'); // Navigate to AllProgress on success
       } else {
         const errorData = await response.json();
