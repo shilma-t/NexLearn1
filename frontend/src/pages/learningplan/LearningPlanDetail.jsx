@@ -87,7 +87,7 @@ const LearningPlanDetail = () => {
         }
       });
       setShowShareModal(false);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(`Failed to share learning plan: ${err.message || 'Unknown error'}`);
       console.error('Error sharing plan:', err);
