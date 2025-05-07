@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Container, Row, Col, Badge, Alert, Tabs, Tab } from 'react-bootstrap';
+import { Card, Button, Container, Row, Col, Badge, Alert, Tabs, Tab, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
+import SharePlanModal from './SharePlanModal';
 
 const API_URL = 'http://localhost:9006/api';
 
@@ -11,160 +12,115 @@ const LearningPlanList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const getUserId = () => {
-    return localStorage.getItem('userId') || sessionStorage.getItem('userId') || 'user123';
-  };
-  const SHARED_USER_ID = 'sharedUser123';
-
   useEffect(() => {
     const fetchPlans = async () => {
       try {
         const [plansResponse, sharedPlansResponse] = await Promise.all([
-          axios.get(`${API_URL}/plans/user/${getUserId()}`),
-          axios.get(`${API_URL}/plans/shared/${SHARED_USER_ID}`)
+          axios.get(`${API_URL}/plans/user/user123`),
+          axios.get(`${API_URL}/plans/shared/sharedUser123`)
         ]);
         setPlans(plansResponse.data);
         setSharedPlans(sharedPlansResponse.data);
       } catch (error) {
         setError('Failed to load learning plans');
-        console.error('Error fetching plans:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPlans();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this learning plan?')) {
-      try {
-        await axios.delete(`${API_URL}/plans/${id}`);
-        setPlans(plans.filter(plan => plan.id !== id));
-      } catch (error) {
-        setError('Failed to delete learning plan');
-        console.error('Error deleting plan:', error);
-      }
-    }
-  };
-
-  const renderPlanCard = (plan, isShared = false) => (
+  const renderPlanCard = (plan) => (
     <Col md={4} className="mb-4" key={plan.id}>
       <Card className="plan-card h-100">
         <Card.Body>
-          <Card.Title className="plan-title">{plan.title}</Card.Title>
-          <Card.Text className="plan-description">{plan.description}</Card.Text>
-          <div className="mb-2">
-            <small className="text-muted">
-              {plan.topics.length} topics |{' '}
-              {plan.topics.filter(t => t.completed).length} completed
-            </small>
-          </div>
-          {isShared && (
-            <Badge bg="info" className="shared-badge mb-2">Shared Plan</Badge>
-          )}
-          <div className="card-buttons mt-3">
+          <Card.Title>{plan.title}</Card.Title>
+          <Card.Text>{plan.description}</Card.Text>
+          <div className="mt-3">
             <Link to={`/plan/${plan.id}`}>
-              <Button variant="primary" className="btn-view-details">View Details</Button>
+              <Button variant="primary">View Details</Button>
             </Link>
-            {!isShared && (
-              <Button
-                variant="danger"
-                className="btn-delete ms-2"
-                onClick={() => handleDelete(plan.id)}
-              >
-                Delete
-              </Button>
-            )}
+            
+            <Button variant="danger" className="ms-2">Delete</Button>
+       
           </div>
         </Card.Body>
       </Card>
     </Col>
   );
 
-  const renderViewShared = (plan, isShared = false) => (
+  const renderViewShared = (plan) => (
     <Col md={4} className="mb-4" key={plan.id}>
       <Card className="plan-card h-100">
         <Card.Body>
-          <Card.Title className="plan-title">{plan.title}</Card.Title>
-          <Card.Text className="plan-description">{plan.description}</Card.Text>
-          <div className="mb-2">
-            <small className="text-muted">
-              {plan.topics.length} topics |{' '}
-              {plan.topics.filter(t => t.completed).length} completed
-            </small>
-          </div>
-          {isShared && (
-            <Badge bg="info" className="shared-badge mb-2">Shared Plan</Badge>
-          )}
-          <div className="card-buttons mt-3">
+          <Card.Title>{plan.title}</Card.Title>
+          <Card.Text>{plan.description}</Card.Text>
+          <h3>Topics</h3>
+                {Array.isArray(plan.topics) && plan.topics.length > 0 ? (
+                  plan.topics.map((topic) => (
+                    <Card key={topic.id || `topic-${Math.random()}`} className="mb-3">
+                      <Card.Body>
+                        <Card.Title>{topic.name || 'Untitled Topic'}</Card.Title>
+                        <Card.Text>{topic.description || 'No description available'}</Card.Text>
+                        <div className="mb-2">
+                          <small>
+                            Start: {topic.startDate || 'Not set'} | End: {topic.endDate || 'Not set'}
+                          </small>
+                        </div>
+                        <Badge bg={topic.completed ? 'success' : 'warning'}>
+                          {topic.completed ? 'Completed' : 'In Progress'}
+                        </Badge>
+                        
+                        <h5 className="mt-3">Resources</h5>
+                        {Array.isArray(topic.resources) && topic.resources.length > 0 ? (
+                          <ListGroup>
+                            {topic.resources.map((resource) => (
+                              <ListGroup.Item key={resource.id || `resource-${Math.random()}`}>
+                                <a 
+                                  href={resource.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                >
+                                  {resource.name || 'Unnamed Resource'}
+                                </a>
+                                <Badge bg="secondary" className="ms-2">
+                                  {resource.type || 'Unknown'}
+                                </Badge>
+                              </ListGroup.Item>
+                            ))}
+                          </ListGroup>
+                        ) : (
+                          <p>No resources added yet</p>
+                        )}
+                      </Card.Body>
+                    </Card>
+                  ))
+                ) : (
+                  <Alert variant="info">No topics added to this plan yet</Alert>
+                )}
+          <div className="mt-3">
             <Link to={`/plan/${plan.id}`}>
-              <Button variant="primary" className="btn-view-details">View Details</Button>
+              {/* <Button variant="primary">View Details</Button> */}
             </Link>
-            {/* {!isShared && (
-              <Button
-                variant="danger"
-                className="btn-delete ms-2"
-                onClick={() => handleDelete(plan.id)}
-              >
-                Delete
-              </Button>
-            )} */}
           </div>
         </Card.Body>
       </Card>
     </Col>
   );
 
-  if (loading) {
-    return <div className="text-center mt-5">Loading...</div>;
-  }
-
-  if (error) {
-    return <Alert variant="danger">{error}</Alert>;
-  }
+  if (loading) return <div className="text-center mt-5">Loading...</div>;
 
   return (
-    <div className="learning-plan-page">
-      <Container className="learning-plan-container mt-4">
-        <div className="learning-plan-header text-center mb-4">
-          <h2>Learning Plans</h2>
-          <Link to="/plan/new">
-            <Button variant="success">Create New Plan</Button>
-          </Link>
-        </div>
-
-        <Tabs defaultActiveKey="myPlans" className="mb-3">
-          <Tab eventKey="myPlans" title="My Plans">
-            <Row>
-              {plans.length > 0 ? (
-                plans.map(plan => renderPlanCard(plan))
-              ) : (
-                <Col>
-                  <Alert variant="info">
-                    You don't have any learning plans yet. Create one to get started!
-                  </Alert>
-                </Col>
-              )}
-            </Row>
-          </Tab>
-
-          <Tab eventKey="sharedPlans" title="View Shared Plans">
-            <Row>
-              {sharedPlans.length > 0 ? (
-                sharedPlans.map(plan => renderViewShared(plan, true))
-              ) : (
-                <Col>
-                  <Alert variant="info">
-                    No shared plans available yet.
-                  </Alert>
-                </Col>
-              )}
-            </Row>
-          </Tab>
-        </Tabs>
-      </Container>
-    </div>
+    <Container className="mt-4">
+      <Tabs defaultActiveKey="myPlans">
+        <Tab eventKey="myPlans" title="My Plans">
+          <Row>{plans.map(renderPlanCard)}</Row>
+        </Tab>
+        <Tab eventKey="sharedPlans" title="View Shared Plans">
+          <Row>{sharedPlans.map(renderViewShared)}</Row>
+        </Tab>
+      </Tabs>
+    </Container>
   );
 };
 
