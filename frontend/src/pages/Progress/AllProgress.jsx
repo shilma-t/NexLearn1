@@ -171,7 +171,7 @@ const AllProgress = () => {
           </>
         );
       default:
-        return <p>No specific details available.</p>;
+        return <p>No specific details Available.</p>;
     }
   };
 
