@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './AllProgress.css'; 
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import './AllProgress.css';
 
 const AllProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
@@ -146,7 +147,7 @@ const AllProgress = () => {
             <p><span className="detail-label">GitHub Link:</span> {update.projectProgress?.githubLink}</p>
             <p><span className="detail-label">Tech Stack:</span> {update.projectProgress?.techStack}</p>
             <p><span className="detail-label">Completed Tasks:</span> {update.projectProgress?.completedTasks} / {update.projectProgress?.totalTasks}</p>
-             <div className="progress">
+            <div className="progress">
               <div
                 className="progress-bar"
                 role="progressbar"
@@ -202,6 +203,7 @@ const AllProgress = () => {
           <option value="CERTIFICATION">Certification</option>
         </select>
       </div>
+
       {filteredUpdates.length === 0 && !loading ? (
         <div className="no-progress-message">No progress updates available for the selected filter.</div>
       ) : (
@@ -216,13 +218,15 @@ const AllProgress = () => {
                 <p className="card-text update-description">{update.description}</p>
                 <p><span className="detail-label">Type:</span> {update.type}</p>
                 {getProgressDetails(update)}
-                <p className="text-muted"><span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}</p>
+                <p className="text-muted">
+                  <span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}
+                </p>
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <button
                     className={`btn btn-sm ${update.likedBy.includes(userId) ? 'btn-danger' : 'btn-outline-primary'} like-button`}
                     onClick={() => handleLike(update.id)}
                   >
-                    {update.likedBy.includes(userId) ? 'Unlike' : 'Like'}
+                    <i className={`bi ${update.likedBy.includes(userId) ? 'bi-heart-fill text-light' : 'bi-heart'}`}></i>
                   </button>
                   <span className="text-muted like-count">
                     {update.likedBy.length} {update.likedBy.length === 1 ? 'Like' : 'Likes'}
