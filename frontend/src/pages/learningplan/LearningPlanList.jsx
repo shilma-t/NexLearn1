@@ -63,9 +63,9 @@ const LearningPlanList = () => {
                         <Card.Title>{topic.name || 'Untitled Topic'}</Card.Title>
                         <Card.Text>{topic.description || 'No description available'}</Card.Text>
                         <div className="mb-2">
-                          <small>
-                            Start: {topic.startDate || 'Not set'} | End: {topic.endDate || 'Not set'}
-                          </small>
+                        <ListGroup.Item key={topic.id}>
+                  {topic.name} - Start: {topic.startDate ? topic.startDate.slice(0, 10) : 'Not set'} | End: {topic.endDate ? topic.endDate.slice(0, 10) : 'Not set'}
+                </ListGroup.Item>
                         </div>
                         <Badge bg={topic.completed ? 'success' : 'warning'}>
                           {topic.completed ? 'Completed' : 'In Progress'}
