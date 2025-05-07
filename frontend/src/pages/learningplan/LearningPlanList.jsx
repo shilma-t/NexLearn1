@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Container, Row, Col, Badge, Alert, Tabs, Tab, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
-import SharePlanModal from './SharePlanModal';
+
 
 const API_URL = 'http://localhost:9006/api';
 
