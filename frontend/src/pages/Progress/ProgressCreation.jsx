@@ -282,7 +282,7 @@ const ProgressCreation = () => {
       });
 
       if (response.ok) {
-        console.log('Progress update created !');
+        console.log('Progress update created successfully!');
         navigate('/all-progress'); // Navigate to AllProgress on success
       } else {
         const errorData = await response.json();
