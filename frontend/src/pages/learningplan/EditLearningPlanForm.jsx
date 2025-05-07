@@ -49,7 +49,7 @@ const EditLearningPlanForm = () => {
           'Access-Control-Allow-Origin': '*'
         }
       });
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError('Failed to update learning plan');
       console.error(err);
