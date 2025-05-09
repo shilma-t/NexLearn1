@@ -38,6 +38,7 @@ export default function Sidebar() {
     { path: "/home", icon: "🏠", text: "Home" },
     { path: "/plans", icon: "📚", text: "Learning Plans" },
     { path: "/shared-plans", icon: "🔗", text: "Shared Plans" },
+    { path: "/community", icon: "🏘️", text: "Communities" },
     { path: "/my-progress", icon: "📊", text: "My Progress" },
     { path: "/all-progress", icon: "📈", text: "All Progress" },
     { path: "/create-progress", icon: "➕", text: "Create Progress" },

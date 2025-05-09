@@ -25,6 +25,9 @@ import UserProgress from './pages/Progress/UserProgress';
 import ProgressEdit from './pages/Progress/ProgressEdit';
 import CommentSection from './components/CommentSection';
 import SharedPlans from './pages/learningplan/SharedPlans';
+import CommunityGroups from './pages/community/CommunityGroups';
+import CreateCommunityGroup from './pages/community/CreateCommunityGroup';
+import CommunityGroupDetail from './pages/community/CommunityGroupDetail';
 
 // --- PostPage with Comment Section ---
 function PostPage() {
@@ -70,6 +73,11 @@ const App = () => {
 
             {/* Post page with comments */}
             <Route path="/post" element={<PostPage />} />
+
+            {/* Community Routes */}
+            <Route path="/community" element={<CommunityGroups />} />
+            <Route path="/community/create" element={<CreateCommunityGroup />} />
+            <Route path="/community/:id" element={<CommunityGroupDetail />} />
           </Routes>
         </div>
       </Router>
