@@ -9,7 +9,10 @@ const UserProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userId] = useState('user123'); // This would typically come from authentication
+  const [userId] = useState(() => {
+    const session = localStorage.getItem('skillhub_user_session');
+    return session ? JSON.parse(session).email : '';
+  });
   const [filterType, setFilterType] = useState('ALL');
   const [filteredUpdates, setFilteredUpdates] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -18,8 +21,11 @@ const UserProgress = () => {
   
   const navigate = useNavigate();
 
-  // Fetch progress updates for the specific user
   useEffect(() => {
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
     const fetchUserProgressUpdates = async () => {
       try {
         const response = await fetch(`http://localhost:9006/api/progress/user/${userId}`);
@@ -37,7 +43,7 @@ const UserProgress = () => {
     };
 
     fetchUserProgressUpdates();
-  }, [userId]);
+  }, [userId, navigate]);
 
   // Filter updates based on selected type
   useEffect(() => {

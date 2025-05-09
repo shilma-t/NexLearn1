@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AllProgress.css'; 
+import { useNavigate } from 'react-router-dom';
 
 const AllProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userId] = useState('user123');
+  const [userId] = useState(() => {
+    const session = localStorage.getItem('skillhub_user_session');
+    return session ? JSON.parse(session).email : '';
+  });
   const [filterType, setFilterType] = useState('ALL');
   const [filteredUpdates, setFilteredUpdates] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
     const fetchProgressUpdates = async () => {
       try {
         const response = await fetch('http://localhost:9006/api/progress');
@@ -28,7 +37,7 @@ const AllProgress = () => {
     };
 
     fetchProgressUpdates();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (filterType === 'ALL') {
