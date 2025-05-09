@@ -30,28 +30,11 @@ const ProgressCreation = () => {
   const [enrolled, setEnrolled] = useState(false);
   const [examTaken, setExamTaken] = useState(false);
   const [certified, setCertified] = useState(false);
-  const [progress, setProgress] = useState({
-    userId: (() => {
-      const session = localStorage.getItem('skillhub_user_session');
-      return session ? JSON.parse(session).email : '';
-    })(),
-    examTaken: false,
-    certified: false,
-    examScore: 0,
-    certificationName: '',
-    certificationDate: '',
-    notes: ''
-  });
+  const [userId, setUserId] = useState('user123');
   const [errors, setErrors] = useState({}); // State for validation errors
+  const [progress, setProgress] = useState(0);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!progress.userId) {
-      navigate('/login');
-      return;
-    }
-  }, [progress.userId, navigate]);
 
   // useEffect to update progress
   useEffect(() => {
@@ -83,7 +66,7 @@ const ProgressCreation = () => {
       default:
         newProgress = 0;
     }
-    setProgress(prevProgress => ({ ...prevProgress, progress: newProgress }));
+    setProgress(newProgress);
   }, [completedModules, totalModules, pagesRead, totalPages, hoursCompleted, totalHours, completedTasks, totalTasks, type, enrolled, examTaken, certified]);
 
 
@@ -231,11 +214,11 @@ const ProgressCreation = () => {
     const isValid = validateForm();
     if (!isValid) {
       console.log('Form validation failed');
-      return;
+      return; // Stop submission if the form is invalid
     }
 
     const progressData = {
-      userId: progress.userId,
+      userId,
       type,
       title,
       description,
@@ -296,20 +279,19 @@ const ProgressCreation = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(progressData),
-        credentials: 'include'
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        console.log('Progress update created successfully!');
+        navigate('/all-progress'); // Navigate to AllProgress on success
+      } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create progress update');
+        console.error('Failed to create progress update:', errorData);
+        // Optionally, set an error message to display to the user
       }
-
-      const data = await response.json();
-      console.log('Progress update created successfully!', data);
-      navigate('/my-progress'); // Navigate to MyProgress on success
     } catch (error) {
       console.error('There was an error creating the progress update:', error);
-      setError(error.message || 'Failed to create progress update. Please try again.');
+      // Optionally, set an error message to display to the user
     }
   };
 
@@ -734,12 +716,12 @@ const ProgressCreation = () => {
                   <div
                     className="progress-bar"
                     role="progressbar"
-                    style={{ width: `${progress.progress}%` }}
-                    aria-valuenow={progress.progress}
+                    style={{ width: `${progress}%` }}
+                    aria-valuenow={progress}
                     aria-valuemin="0"
                     aria-valuemax="100"
                   >
-                    {progress.progress}%
+                    {progress}%
                   </div>
                 </div>
               </div>

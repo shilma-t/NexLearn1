@@ -9,10 +9,7 @@ const ProgressEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userId] = useState(() => {
-    const session = localStorage.getItem('skillhub_user_session');
-    return session ? JSON.parse(session).email : '';
-  });
+  const [userId] = useState('user123');
   
   // Form states
   const [type, setType] = useState('');
@@ -52,35 +49,21 @@ const ProgressEdit = () => {
   const [certified, setCertified] = useState(false);
   
   const [errors, setErrors] = useState({});
-  const [progress, setProgress] = useState({
-    userId: (() => {
-      const session = localStorage.getItem('skillhub_user_session');
-      return session ? JSON.parse(session).email : '';
-    })(),
-    examTaken: false,
-    certified: false,
-    examScore: 0,
-    certificationName: '',
-    certificationDate: '',
-    notes: ''
-  });
+  const [progress, setProgress] = useState(0);
   const [originalData, setOriginalData] = useState(null);
 
+  // Fetch progress data on component mount
   useEffect(() => {
-    if (!userId) {
-      navigate('/login');
-      return;
-    }
     const fetchProgressData = async () => {
       try {
-        const response = await fetch(`http://localhost:9006/api/progress/${id}`, {
-          credentials: 'include'
-        });
+        // In a real app, you would have an endpoint to get a specific progress by ID
+        const response = await fetch(`http://localhost:9006/api/progress`);
         if (!response.ok) {
           throw new Error(`Failed to fetch progress: ${response.status}`);
         }
         
-        const progressData = await response.json();
+        const allData = await response.json();
+        const progressData = allData.find(item => item.id === id);
         
         if (!progressData) {
           throw new Error('Progress update not found');
@@ -140,7 +123,7 @@ const ProgressEdit = () => {
     };
 
     fetchProgressData();
-  }, [id, userId, navigate]);
+  }, [id]);
 
   // Update progress calculation
   useEffect(() => {
