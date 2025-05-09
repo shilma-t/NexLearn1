@@ -130,12 +130,14 @@
 .commentsSection {
   border-top: 1px solid #efefef;
   padding: 8px 16px;
+  text-align: left;
 }
 
 .commentsList {
   max-height: 200px;
   overflow-y: auto;
   margin-bottom: 8px;
+  text-align: left;
 }
 
 .commentHeader {
@@ -143,6 +145,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4px;
+  text-align: left;
 }
 
 .commentActions {
@@ -174,16 +177,28 @@
   padding: 8px;
   border-radius: 4px;
   background-color: #f8f9fa;
+  text-align: left;
 }
 
 .commentUsername {
   font-weight: 600;
   color: #262626;
+  text-align: left;
 }
 
 .commentContent {
   color: #262626;
   word-break: break-word;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editedIndicator {
+  color: #8e8e8e;
+  font-size: 12px;
+  font-style: italic;
 }
 
 .commentInput {
@@ -328,4 +343,8 @@
 .modalActions .cancelBtn {
   background-color: #e4e6eb;
   color: #050505;
+}
+
+.commentBtn {
+  color: #000000 !important;
 }

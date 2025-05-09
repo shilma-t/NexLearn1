@@ -18,5 +18,6 @@ public class LearningPlan {
         private Date createdAt;
         private Date updatedAt;
         private List<String> sharedWith = new ArrayList<>();
+        private boolean sharedWithAll = false;
         private List<Topic> topics = new ArrayList<>();
     }

@@ -25,37 +25,39 @@ public class SecurityConfig {
     }
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors().configurationSource(corsConfigurationSource()).and() // Use custom CORS config
-        .csrf().disable()
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login", "/oauth2/**").permitAll()
-            .anyRequest().authenticated()
-        )
-        .oauth2Login(oauth2 -> oauth2
-            .successHandler(successHandler)
-            .failureHandler((request, response, exception) -> {
-                exception.printStackTrace();
-                response.sendRedirect("/login?error");
-            })
-        );
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors().configurationSource(corsConfigurationSource()).and()
+            .csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/register", "/auth/login", "/oauth2/**", "/api/plans/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(successHandler)
+                .failureHandler((request, response, exception) -> {
+                    exception.printStackTrace();
+                    response.sendRedirect("/login?error");
+                })
+            )
+            .sessionManagement(session -> session
+                .maximumSessions(1)
+                .expiredUrl("/login?expired")
+            );
 
-    return http.build();
-}
+        return http.build();
+    }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "Accept"));
+        config.setAllowCredentials(true);
 
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "Accept")); // Specify headers explicitly
-    config.setAllowCredentials(true);
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-}
-
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }

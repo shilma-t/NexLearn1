@@ -1,208 +1,271 @@
-import React, { useState } from "react";
-import "./createPostModal.css";
-import axios from "axios";
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { Close, ArrowBack, ArrowForward, FilterAlt } from '@mui/icons-material';
+import './CreatePostModal.css';
 
-export default function CreatePostModal({ onClose, fetchPosts }) {
+const FILTERS = {
+  none: 'None',
+  grayscale: 'Grayscale',
+  sepia: 'Sepia',
+  blur: 'Blur',
+  brightness: 'Brightness',
+  contrast: 'Contrast',
+  saturate: 'Saturate',
+};
+
+const CreatePostModal = ({ onClose, fetchPosts }) => {
   const [step, setStep] = useState(1);
-  const [media, setMedia] = useState([]);
-  const [caption, setCaption] = useState("");
-  const [location, setLocation] = useState("");
-  const [showDiscardPopup, setShowDiscardPopup] = useState(false);
-  const [filter, setFilter] = useState("");
-  const [filterStrength, setFilterStrength] = useState(1);
-  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [caption, setCaption] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('none');
+  const [filterValue, setFilterValue] = useState(100);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+  const canvasRef = useRef(null);
 
-  const userId = localStorage.getItem("userId");
-  const username = localStorage.getItem("username");
-  const profilePic = localStorage.getItem("profilePic");
-
-  const handleMediaChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 3);
-    setMedia(files);
+  const getUserInfo = () => {
+    const sessionData = localStorage.getItem('skillhub_user_session');
+    if (sessionData) {
+      try {
+        const userData = JSON.parse(sessionData);
+        return {
+          userId: userData.email,
+          username: userData.name,
+          profilePic: userData.picture
+        };
+      } catch (e) {
+        console.error("Error parsing session:", e);
+      }
+    }
+    return null;
   };
 
-  const handlePost = async () => {
-    const formData = new FormData();
-    formData.append("userId", userId);
-    formData.append("username", username);
-    formData.append("profilePic", profilePic);
-    formData.append("caption", caption);
-    formData.append("location", location);
-    media.forEach((file) => {
-      formData.append("file", file);
-    });
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const applyFilter = (imageUrl, filter, value) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Apply filter
+      ctx.filter = `${filter}(${value}%)`;
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = imageUrl;
+  };
+
+  useEffect(() => {
+    if (previewUrl && selectedFilter !== 'none') {
+      applyFilter(previewUrl, selectedFilter, filterValue);
+    }
+  }, [previewUrl, selectedFilter, filterValue]);
+
+  const handleNext = () => {
+    if (step === 1 && !selectedFile) {
+      setError('Please select an image first');
+      return;
+    }
+    setStep(step + 1);
+    setError(null);
+  };
+
+  const handleBack = () => {
+    setStep(step - 1);
+    setError(null);
+  };
+
+  const handleShare = async () => {
+    if (!caption.trim()) {
+      setError('Please add a caption');
+      return;
+    }
+
+    const userInfo = getUserInfo();
+    if (!userInfo) {
+      setError('Please login to create a post');
+      return;
+    }
 
     try {
-      await axios.post("http://localhost:9006/api/posts/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      fetchPosts();
-      onClose();
-    } catch (err) {
-      console.error("Upload failed:", err);
-    }
-  };
+      const formData = new FormData();
+      formData.append('caption', caption);
+      formData.append('userId', userInfo.userId);
+      formData.append('username', userInfo.username);
+      formData.append('profilePic', userInfo.profilePic);
 
-  const applyFilter = (filterName) => setFilter(filterName);
-  const handleFilterStrengthChange = (e) => setFilterStrength(e.target.value);
+      // If a filter is applied, get the filtered image from canvas
+      if (selectedFilter !== 'none' && canvasRef.current) {
+        const filteredImageBlob = await new Promise(resolve => {
+          canvasRef.current.toBlob(resolve, 'image/jpeg', 0.9);
+        });
+        formData.append('file', filteredImageBlob, selectedFile.name);
+      } else {
+        formData.append('file', selectedFile);
+      }
 
-  const getFilterStyle = () => {
-    if (!filter) return "none";
-
-    const strength = Number(filterStrength);
-
-    switch (filter) {
-      case "brightness":
-        return `brightness(${strength})`;
-      case "grayscale":
-        return `grayscale(${strength})`;
-      case "contrast":
-        return `contrast(${strength})`;
-      case "sepia":
-        return `sepia(${strength})`;
-      default:
-        return "none";
-    }
-  };
-
-  const fetchLocation = () => {
-    if (navigator.geolocation) {
-      setIsFetchingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-            );
-            const data = await res.json();
-            if (data && data.address) {
-              const { city, town, village, state, country } = data.address;
-              const placeName = city || town || village || state || country || "Unknown Location";
-              setLocation(`${placeName}, ${country}`);
-            } else {
-              setLocation("Unknown Location");
-            }
-          } catch (error) {
-            console.error("Error fetching place name:", error);
-            setLocation("Unknown Location");
-          }
-          setIsFetchingLocation(false);
+      const res = await axios.post('http://localhost:9006/api/posts/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-        (error) => {
-          console.error("Error fetching location:", error);
-          setIsFetchingLocation(false);
-        }
-      );
-    } else {
-      console.error("Geolocation not supported by this browser.");
+        withCredentials: true,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
+      });
+
+      if (res.data) {
+        onClose();
+        fetchPosts();
+      }
+    } catch (err) {
+      console.error('Error creating post:', err);
+      setError(err.response?.data || 'Failed to create post. Please try again.');
     }
   };
 
   return (
-    <div className="modalOverlay">
-      <div className="modalBox">
-        {step === 1 && (
-          <>
-            <h3 className="modalTitle">Select Media</h3>
-            <input type="file" multiple accept="image/*,video/*" onChange={handleMediaChange} />
-            <button className="accentBtn" onClick={() => setStep(2)} disabled={media.length === 0}>
-              Next
+    <div className="createPostModalOverlay">
+      <div className="createPostModalContent">
+        <div className="createPostHeader">
+          {step > 1 && (
+            <button className="backButton" onClick={handleBack}>
+              <ArrowBack />
             </button>
-          </>
+          )}
+          <h3>
+            {step === 1 ? 'Create new post' :
+             step === 2 ? 'Edit' :
+             'Create new post'}
+          </h3>
+          {step === 3 && (
+            <button 
+              className="shareButton"
+              onClick={handleShare}
+              disabled={!caption.trim()}
+            >
+              Share
+            </button>
+          )}
+          <button className="closeButton" onClick={onClose}>
+            <Close />
+          </button>
+        </div>
+
+        {error && (
+          <div className="error-message" onClick={() => setError(null)}>
+            {error}
+          </div>
         )}
 
-        {step === 2 && (
-          <>
-            <h3 className="modalTitle">Edit & Filter</h3>
-            <div className="mediaPreview">
-              {media.map((file, idx) => (
-                <div key={idx} className="mediaItem">
-                  {file.type.startsWith("image/") ? (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt="preview"
-                      className="filterable"
-                      style={{ filter: getFilterStyle() }}
-                    />
-                  ) : (
-                    <video
-                      src={URL.createObjectURL(file)}
-                      controls
-                      className="filterable"
-                      style={{ filter: getFilterStyle() }}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="filterOptions">
-              <button onClick={() => applyFilter("brightness")}>Brightness</button>
-              <button onClick={() => applyFilter("grayscale")}>Grayscale</button>
-              <button onClick={() => applyFilter("contrast")}>Contrast</button>
-              <button onClick={() => applyFilter("sepia")}>Sepia</button>
-              <button onClick={() => applyFilter("")}>Reset</button>
-            </div>
-
-            <div className="filterStrength">
-              <label>Adjust Strength</label>
-              <input
-                type="range"
-                min="0"
-                max="2"
-                step="0.01"
-                value={filterStrength}
-                onChange={handleFilterStrengthChange}
-              />
-              <span>{Math.round(filterStrength * 100)}%</span>
-            </div>
-
-            <button className="accentBtn" onClick={() => setStep(3)}>Next</button>
-          </>
-        )}
-
-        {step === 3 && (
-          <>
-            <h3 className="modalTitle">Write a Caption</h3>
-            <div className="captionContainer">
-              <textarea
-                className="captionInput"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Write a caption..."
-              />
-              <input
-                className="locationInput"
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Add location manually"
-              />
-              <button className="accentBtn" onClick={fetchLocation} disabled={isFetchingLocation}>
-                {isFetchingLocation ? "Fetching Location..." : "Use Current Location"}
+        <div className="createPostBody">
+          {step === 1 && (
+            <div className="uploadStep">
+              <div className="uploadIcon">
+                <img src="/images/upload.png" alt="Upload" />
+              </div>
+              <p>Drag photos and videos here</p>
+              <button 
+                className="selectButton"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Select from computer
               </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleFileSelect}
+                style={{ display: 'none' }}
+              />
             </div>
+          )}
 
-            <div className="modalActions">
-              <button className="accentBtn" onClick={handlePost}>Post</button>
-              <button className="discardBtn" onClick={() => setShowDiscardPopup(true)}>Discard</button>
-            </div>
-          </>
-        )}
-
-        {showDiscardPopup && (
-          <div className="popupOverlay">
-            <div className="popupBox">
-              <p>Discard this post?</p>
-              <div className="popupActions">
-                <button className="accentBtn" onClick={onClose}>Yes</button>
-                <button className="discardBtn" onClick={() => setShowDiscardPopup(false)}>No</button>
+          {step === 2 && previewUrl && (
+            <div className="filterStep">
+              <div className="filterPreview">
+                <img 
+                  src={selectedFilter === 'none' ? previewUrl : canvasRef.current?.toDataURL()} 
+                  alt="Preview" 
+                  style={{
+                    filter: selectedFilter !== 'none' ? `${selectedFilter}(${filterValue}%)` : 'none'
+                  }}
+                />
+              </div>
+              <div className="filterOptions">
+                {Object.entries(FILTERS).map(([key, label]) => (
+                  <button
+                    key={key}
+                    className={`filterButton ${selectedFilter === key ? 'active' : ''}`}
+                    onClick={() => setSelectedFilter(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+                {selectedFilter !== 'none' && (
+                  <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={filterValue}
+                    onChange={(e) => setFilterValue(e.target.value)}
+                    className="filterSlider"
+                  />
+                )}
               </div>
             </div>
+          )}
+
+          {step === 3 && (
+            <div className="captionStep">
+              <div className="postPreview">
+                <img 
+                  src={selectedFilter === 'none' ? previewUrl : canvasRef.current?.toDataURL()} 
+                  alt="Preview" 
+                  style={{
+                    filter: selectedFilter !== 'none' ? `${selectedFilter}(${filterValue}%)` : 'none'
+                  }}
+                />
+              </div>
+              <div className="captionInput">
+                <textarea
+                  placeholder="Write a caption..."
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {step < 3 && (
+          <div className="createPostFooter">
+            <button 
+              className="nextButton"
+              onClick={handleNext}
+              disabled={step === 1 && !selectedFile}
+            >
+              Next
+              <ArrowForward />
+            </button>
           </div>
         )}
       </div>
     </div>
   );
-}
+};
+
+export default CreatePostModal;

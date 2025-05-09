@@ -406,7 +406,8 @@ export default function Feed() {
         content: newContent,
         userId,
         username,
-        type: "comment"
+        type: "comment",
+        isEdited: true
       }, {
         withCredentials: true,
       });
@@ -417,7 +418,7 @@ export default function Feed() {
           ...prev,
           [postId]: prev[postId].map(comment => 
             comment.id === commentId || comment._id === commentId
-              ? { ...comment, content: newContent }
+              ? { ...comment, content: newContent, isEdited: true }
               : comment
           )
         }));
@@ -533,7 +534,7 @@ export default function Feed() {
                     alt={`Media ${mediaIndex + 1}`} 
                     className="postMedia" 
                   />
-                ))}
+              ))}
               </div>
             )}
 
@@ -592,7 +593,10 @@ export default function Feed() {
                           </div>
                         )}
                       </div>
-                      <span className="commentContent">{comment.content}</span>
+                      <div className="commentContent">
+                        <span>{comment.content}</span>
+                        {comment.isEdited && <span className="editedIndicator">(edited)</span>}
+                      </div>
                     </div>
                   ))}
                 </div>

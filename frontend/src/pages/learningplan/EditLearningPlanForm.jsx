@@ -7,38 +7,35 @@ import axiosInstance from '../../utils/axios';
 const EditLearningPlanForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [plan, setPlan] = useState({
-    title: '',
-    description: '',
-    learningTopics: []
-  });
+  const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (!id || id === '0') {
+      setError('Invalid plan ID.');
+      setLoading(false);
+      return;
+    }
     const fetchPlan = async () => {
-      if (!id) {
-        setError('Invalid plan ID');
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await axiosInstance.get(`/plans/${id}`);
         if (response && response.data) {
-          setPlan(response.data);
+          const planData = {
+            ...response.data,
+            topics: response.data.topics || []
+          };
+          setPlan(planData);
         } else {
           setError('No data received from server');
         }
       } catch (err) {
-        console.error('Error fetching plan:', err);
-        setError(`Failed to load learning plan: ${err.message || 'Unknown error'}`);
+        setError('Failed to fetch plan.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchPlan();
   }, [id]);
 
@@ -48,7 +45,21 @@ const EditLearningPlanForm = () => {
     setError('');
 
     try {
-      await axiosInstance.put(`/plans/${id}`, plan);
+      // Transform the data to match backend expectations
+      const planData = {
+        ...plan,
+        topics: plan.topics.map(topic => ({
+          name: topic.title,
+          description: topic.description,
+          resources: [{
+            name: topic.resources,
+            url: '',
+            type: 'TEXT'
+          }]
+        }))
+      };
+
+      await axiosInstance.put(`/plans/${id}`, planData);
       navigate(`/plan/${id}`);
     } catch (err) {
       console.error('Error updating plan:', err);
@@ -67,22 +78,22 @@ const EditLearningPlanForm = () => {
   };
 
   const handleTopicChange = (index, field, value) => {
-    const updatedTopics = [...plan.learningTopics];
+    const updatedTopics = [...plan.topics];
     updatedTopics[index] = {
       ...updatedTopics[index],
       [field]: value
     };
     setPlan(prev => ({
       ...prev,
-      learningTopics: updatedTopics
+      topics: updatedTopics
     }));
   };
 
   const addTopic = () => {
     setPlan(prev => ({
       ...prev,
-      learningTopics: [
-        ...prev.learningTopics,
+      topics: [
+        ...prev.topics,
         { title: '', description: '', resources: '' }
       ]
     }));
@@ -91,28 +102,13 @@ const EditLearningPlanForm = () => {
   const removeTopic = (index) => {
     setPlan(prev => ({
       ...prev,
-      learningTopics: prev.learningTopics.filter((_, i) => i !== index)
+      topics: prev.topics.filter((_, i) => i !== index)
     }));
   };
 
-  if (loading) {
-    return <div className="text-center mt-5">Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <Container className="mt-4">
-        <Alert variant="danger">
-          {error}
-          <div className="mt-3">
-            <Button variant="primary" onClick={() => navigate('/plans')}>
-              Return to Plans
-            </Button>
-          </div>
-        </Alert>
-      </Container>
-    );
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-danger">{error}</div>;
+  if (!plan) return <div>No plan found.</div>;
 
   return (
     <Container className="mt-4">
@@ -141,7 +137,7 @@ const EditLearningPlanForm = () => {
         </Form.Group>
 
         <h4>Topics</h4>
-        {plan.learningTopics.map((topic, index) => (
+        {plan.topics.map((topic, index) => (
           <div key={index} className="mb-4 p-3 border rounded">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h5>Topic {index + 1}</h5>

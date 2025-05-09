@@ -12,18 +12,26 @@ const LearningPlanDetail = () => {
   const [error, setError] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
-  useEffect(() => {
-    const fetchPlan = async () => {
-      if (!id) {
-        setError('Invalid plan ID');
-        setLoading(false);
-        return;
-      }
+  // Get current user email from session
+  const sessionData = localStorage.getItem('skillhub_user_session');
+  const currentUserEmail = sessionData ? JSON.parse(sessionData).email : null;
+  const isOwner = plan && plan.userId === currentUserEmail;
 
+  useEffect(() => {
+    if (!id || id === '0') {
+      setError('Invalid plan ID.');
+      setLoading(false);
+      return;
+    }
+    const fetchPlan = async () => {
       try {
         const response = await axiosInstance.get(`/plans/${id}`);
         if (response && response.data) {
-          setPlan(response.data);
+          const planData = {
+            ...response.data,
+            id: response.data.id || response.data._id
+          };
+          setPlan(planData);
         } else {
           setError('No data received from server');
         }
@@ -34,7 +42,6 @@ const LearningPlanDetail = () => {
         setLoading(false);
       }
     };
-
     fetchPlan();
   }, [id]);
 
@@ -56,6 +63,23 @@ const LearningPlanDetail = () => {
 
   const handleShare = () => {
     setShowShareModal(true);
+  };
+
+  const handleShareWithAll = async () => {
+    if (window.confirm('Are you sure you want to share this plan with all users?')) {
+      try {
+        await axiosInstance.post(`/plans/${id}/share/all`);
+        setError('Plan shared successfully with all users!');
+        // Refresh the plan data
+        const response = await axiosInstance.get(`/plans/${id}`);
+        if (response && response.data) {
+          setPlan(response.data);
+        }
+      } catch (err) {
+        setError(`Failed to share learning plan: ${err.message || 'Unknown error'}`);
+        console.error('Error sharing plan:', err);
+      }
+    }
   };
 
   const handleShareSubmit = async (userId) => {
@@ -112,17 +136,22 @@ const LearningPlanDetail = () => {
       <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
           <h2>{plan.title}</h2>
-          <div>
-            <Button variant="primary" onClick={handleEdit} className="me-2">
-              Edit
-            </Button>
-            <Button variant="danger" onClick={handleDelete} className="me-2">
-              Delete
-            </Button>
-            <Button variant="success" onClick={handleShare}>
-              Share
-            </Button>
-      </div>
+          {isOwner && (
+            <div>
+              <Button variant="primary" onClick={handleEdit} className="me-2">
+                Edit
+              </Button>
+              <Button variant="danger" onClick={handleDelete} className="me-2">
+                Delete
+              </Button>
+              <Button variant="success" onClick={handleShare} className="me-2">
+                Share
+              </Button>
+              <Button variant="info" onClick={handleShareWithAll}>
+                Share with All
+              </Button>
+            </div>
+          )}
         </Card.Header>
             <Card.Body>
           <Card.Text>{plan.description}</Card.Text>

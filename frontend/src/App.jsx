@@ -24,6 +24,7 @@ import AllProgress from './pages/Progress/AllProgress';
 import UserProgress from './pages/Progress/UserProgress';
 import ProgressEdit from './pages/Progress/ProgressEdit';
 import CommentSection from './components/CommentSection';
+import SharedPlans from './pages/learningplan/SharedPlans';
 
 // --- PostPage with Comment Section ---
 function PostPage() {
@@ -57,6 +58,9 @@ const App = () => {
             <Route path="/plans" element={<LearningPlanList />} />
             <Route path="/plan/edit/:id" element={<EditLearningPlanForm />} />
             <Route path="/plan/:id" element={<LearningPlanDetail />} />
+            <Route path="/learning-plans" element={<LearningPlanList />} />
+            <Route path="/learning-plans/:id" element={<LearningPlanDetail />} />
+            <Route path="/shared-plans" element={<SharedPlans />} />
 
             {/* Progress Tracking Routes */}
             <Route path="/create-progress" element={<CreateProgress />} />

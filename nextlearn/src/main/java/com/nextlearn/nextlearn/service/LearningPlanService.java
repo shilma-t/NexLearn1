@@ -57,7 +57,13 @@ public class LearningPlanService {
     }
 
     public void deletePlan(String id) {
-        learningPlanRepository.deleteById(id);
+        Optional<LearningPlan> planOpt = learningPlanRepository.findById(id);
+        if (planOpt.isPresent()) {
+            LearningPlan plan = planOpt.get();
+            learningPlanRepository.delete(plan);
+        } else {
+            throw new RuntimeException("Plan not found with id: " + id);
+        }
     }
 
     public LearningPlan sharePlan(String planId, String userId) {
@@ -83,6 +89,18 @@ public class LearningPlanService {
             return learningPlanRepository.save(plan);
         }
         return null;
+    }
+
+    public LearningPlan sharePlanWithAll(String planId) {
+        LearningPlan plan = learningPlanRepository.findById(planId)
+            .orElseThrow(() -> new RuntimeException("Learning plan not found"));
+        
+        plan.setSharedWithAll(true);
+        return learningPlanRepository.save(plan);
+    }
+
+    public List<LearningPlan> getAllSharedPlans() {
+        return learningPlanRepository.findBySharedWithAllTrue();
     }
 }
 

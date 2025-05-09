@@ -96,5 +96,23 @@ public class LearningPlanController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PostMapping("/{planId}/share/all")
+    public ResponseEntity<LearningPlan> sharePlanWithAll(@PathVariable String planId) {
+        try {
+            LearningPlan plan = learningPlanService.sharePlanWithAll(planId);
+            if (plan != null) {
+                return ResponseEntity.ok(plan);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/shared/all")
+    public ResponseEntity<List<LearningPlan>> getAllSharedPlans() {
+        return ResponseEntity.ok(learningPlanService.getAllSharedPlans());
+    }
 }
 

@@ -1,57 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axiosInstance from '../../utils/axios';
-import './LearningPlanList.css';
 
-const LearningPlanList = () => {
+
+const SharedPlans = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-
-  const getUserInfo = () => {
-    const sessionData = localStorage.getItem('skillhub_user_session');
-    if (sessionData) {
-      try {
-        const userData = JSON.parse(sessionData);
-        return {
-          userId: userData.email,
-          username: userData.name
-        };
-      } catch (e) {
-        console.error("Error parsing session:", e);
-      }
-    }
-    return null;
-  };
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const fetchSharedPlans = async () => {
       try {
-        const sessionData = localStorage.getItem('skillhub_user_session');
-        if (!sessionData) {
-          setError('Please login to view your learning plans');
-          setLoading(false);
-          return;
-        }
-        const userData = JSON.parse(sessionData);
-        const response = await axiosInstance.get(`/plans/user/${userData.email}`);
+        const response = await axiosInstance.get('/plans/shared/all');
         if (response && response.data) {
-          const formattedPlans = response.data.map(plan => ({
-            ...plan,
-            id: plan.id || plan._id
-          }));
-          setPlans(formattedPlans);
+          setPlans(response.data);
         }
       } catch (err) {
-        console.error('Error fetching plans:', err);
-        setError('Failed to load learning plans');
+        console.error('Error fetching shared plans:', err);
+        setError('Failed to load shared plans');
       } finally {
         setLoading(false);
       }
     };
-    fetchPlans();
+    fetchSharedPlans();
   }, []);
 
   if (loading) {
@@ -64,30 +36,36 @@ const LearningPlanList = () => {
 
   return (
     <Container className="mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>My Learning Plans</h2>
-        <Link to="/plan/new">
-          <Button variant="primary">Create New Plan</Button>
-        </Link>
-      </div>
-      
+      <h2>Shared Learning Plans</h2>
       {plans.length === 0 ? (
         <div className="text-center mt-5">
-          <p>No learning plans found. Create your first plan!</p>
+          <p>No shared learning plans found.</p>
         </div>
       ) : (
         <Row>
-          {plans.map((plan, idx) => {
+          {plans.map((plan) => {
             const planId = plan.id || plan._id;
             if (!planId) {
               console.error('Plan missing ID:', plan);
               return null;
             }
-            
+
             return (
               <Col key={planId} md={4} className="mb-4">
                 <Card>
                   <Card.Body>
+                    <div className="d-flex align-items-center mb-3">
+                      <img
+                        src={plan.ownerProfilePic || 'https://via.placeholder.com/40'}
+                        alt={plan.ownerName}
+                        className="rounded-circle me-2"
+                        style={{ width: '40px', height: '40px' }}
+                      />
+                      <div>
+                        <div className="text-muted small">Shared by</div>
+                        <div>{plan.ownerName}</div>
+                      </div>
+                    </div>
                     <Card.Title>{plan.title}</Card.Title>
                     <Card.Text>{plan.description}</Card.Text>
                     <div className="d-flex justify-content-between align-items-center">
@@ -109,4 +87,4 @@ const LearningPlanList = () => {
   );
 };
 
-export default LearningPlanList;
+export default SharedPlans; 
