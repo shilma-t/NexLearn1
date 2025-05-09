@@ -26,6 +26,10 @@ public class ProgressUpdateService {
         return repository.findAll();
     }
 
+    public Optional<ProgressUpdate> getProgressById(String id) {
+        return repository.findById(id);
+    }
+
     public List<ProgressUpdate> getUserProgress(String userId) {
         return repository.findByUserId(userId);
     }

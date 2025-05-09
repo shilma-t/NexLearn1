@@ -31,21 +31,29 @@ public class PostController {
             @RequestParam("username") String username,
             @RequestParam("profilePic") String profilePic,
             @RequestParam("caption") String caption,
-            @RequestParam(value = "file", required = false) MultipartFile[] files) throws IOException {
+            @RequestParam(value = "file", required = false) MultipartFile[] files) {
         try {
             // Validate user information
             if (userId == null || userId.equals("null") || username == null || username.equals("null")) {
                 return ResponseEntity.badRequest().body("User information is required");
             }
 
+            // Create upload directory if it doesn't exist
+            File uploadDirectory = new File(uploadDir);
+            if (!uploadDirectory.exists()) {
+                uploadDirectory.mkdirs();
+            }
+
             String[] mediaUrls = new String[0];
             if (files != null && files.length > 0) {
                 mediaUrls = new String[files.length];
                 for (int i = 0; i < files.length; i++) {
-                    String fileName = System.currentTimeMillis() + "_" + files[i].getOriginalFilename();
-                    File file = new File(uploadDir + File.separator + fileName);
-                    files[i].transferTo(file);
-                    mediaUrls[i] = "http://localhost:9006/uploads/" + fileName;
+                    if (files[i] != null && !files[i].isEmpty()) {
+                        String fileName = System.currentTimeMillis() + "_" + files[i].getOriginalFilename();
+                        File file = new File(uploadDirectory, fileName);
+                        files[i].transferTo(file);
+                        mediaUrls[i] = "http://localhost:9006/uploads/" + fileName;
+                    }
                 }
             }
 
@@ -58,8 +66,11 @@ public class PostController {
             post.setLikedBy(new HashSet<>());
             post.setLikes(0);
             post.setComments(0);
-            return ResponseEntity.ok(postService.createPost(post));
+            
+            Post savedPost = postService.createPost(post);
+            return ResponseEntity.ok(savedPost);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Error creating post: " + e.getMessage());
         }
     }

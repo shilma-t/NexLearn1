@@ -26,6 +26,13 @@ public class ProgressUpdateController {
         return ResponseEntity.ok(service.getAllProgress());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProgressUpdate> getById(@PathVariable String id) {
+        return service.getProgressById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ProgressUpdate>> getByUser(@PathVariable String userId) {
         return ResponseEntity.ok(service.getUserProgress(userId));

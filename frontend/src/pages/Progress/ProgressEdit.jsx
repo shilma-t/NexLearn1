@@ -391,6 +391,7 @@ const ProgressEdit = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(progressData),
       });
 

@@ -14,8 +14,8 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow specific origin
-        config.addAllowedOrigin("http://localhost:5173");
+        // Allow all origins during development
+        config.addAllowedOriginPattern("*");
         
         // Allow credentials
         config.setAllowCredentials(true);
