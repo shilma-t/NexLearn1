@@ -115,8 +115,20 @@ const LearningPlanList = () => {
           <Row>{plans.map(renderPlanCard)}</Row>
         </Tab>
         <Tab eventKey="sharedPlans" title="View Shared Plans">
-          <Row>{sharedPlans.map(renderViewShared)}</Row>
-        </Tab>
+  <Row
+    style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '20px',
+      padding: '20px',
+      backgroundColor: '#f9f9f9',
+      borderRadius: '10px',
+      border: '1px solid #ddd',
+    }}
+  >
+    {sharedPlans.map(renderViewShared)}
+  </Row>
+</Tab>
       </Tabs>
     </Container>
   );
