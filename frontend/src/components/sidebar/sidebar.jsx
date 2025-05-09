@@ -42,6 +42,7 @@ export default function Sidebar() {
           { name: "Jobs", link: "/jobs" },
           { name: "Events", link: "/events" },
           { name: "Courses", link: "/courses" },
+          { name: "Learning Plan", link: "/dashboard" },
         ].map((item) => (
           <li
             key={item.name}
