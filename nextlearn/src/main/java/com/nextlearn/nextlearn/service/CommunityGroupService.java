@@ -87,8 +87,8 @@ public class CommunityGroupService {
 
     public CommunityGroup sendMessage(String groupId, String senderId, GroupMessage message) {
         CommunityGroup group = groupRepository.findById(groupId).orElseThrow();
-        if (!group.getOwnerId().equals(senderId)) {
-            throw new RuntimeException("Only the owner can send messages");
+        if (!group.getMembers().contains(senderId)) {
+            throw new RuntimeException("Only members can send messages");
         }
         message.setId(UUID.randomUUID().toString());
         message.setTimestamp(new Date());

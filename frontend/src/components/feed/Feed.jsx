@@ -12,20 +12,42 @@ export default function Feed() {
   const [commentText, setCommentText] = useState("");
   const [showComments, setShowComments] = useState({});
   const [comments, setComments] = useState({});
+  const [isUpdatingProfilePic, setIsUpdatingProfilePic] = useState(false);
+  const [userData, setUserData] = useState(null);
 
-  // Get user info from Google session
-  const getUserInfo = () => {
+  // Get user info from Google session and fetch latest data
+  const getUserInfo = async () => {
     const sessionData = localStorage.getItem('skillhub_user_session');
     if (sessionData) {
       try {
-        const userData = JSON.parse(sessionData);
+        const sessionUserData = JSON.parse(sessionData);
+        // Fetch latest user data from backend
+        const res = await axios.get(`${API_BASE_URL}/users/search?q=${sessionUserData.email}`, {
+          withCredentials: true,
+        });
+        
+        if (res.data && res.data.length > 0) {
+          const latestUserData = res.data[0];
+          setUserData(latestUserData);
+          return {
+            userId: latestUserData.email,
+            username: latestUserData.name,
+            profilePic: latestUserData.profilePic || sessionUserData.picture
+          };
+        }
+        
         return {
-          userId: userData.email,
-          username: userData.name,
-          profilePic: userData.picture
+          userId: sessionUserData.email,
+          username: sessionUserData.name,
+          profilePic: sessionUserData.picture
         };
       } catch (e) {
-        console.error("Error parsing session:", e);
+        console.error("Error fetching user data:", e);
+        return {
+          userId: null,
+          username: null,
+          profilePic: null
+        };
       }
     }
     return {
@@ -35,7 +57,20 @@ export default function Feed() {
     };
   };
 
-  const { userId, username, profilePic } = getUserInfo();
+  // Update user data when component mounts and periodically
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const info = await getUserInfo();
+      setUserData(info);
+    };
+    
+    fetchUserData();
+    const interval = setInterval(fetchUserData, 30000); // Refresh every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const { userId, username, profilePic } = userData || {};
   const API_BASE_URL = "http://localhost:9006/api";
   const POSTS_URL = `${API_BASE_URL}/posts`;
   const COMMENTS_URL = `${API_BASE_URL}/comments`;
@@ -185,19 +220,27 @@ export default function Feed() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("caption", caption);
-    formData.append("userId", userId);
-    formData.append("username", username);
-    formData.append("profilePic", profilePic);
-
-    if (media.length > 0) {
-    media.forEach((file) => {
-      formData.append("file", file);
-    });
-    }
-
     try {
+      // Fetch latest user data first
+      const userRes = await axios.get(`${API_BASE_URL}/users/search?q=${userId}`, {
+        withCredentials: true,
+      });
+      
+      const userData = userRes.data[0];
+      const currentProfilePic = userData?.profilePic || profilePic;
+
+      const formData = new FormData();
+      formData.append("caption", caption);
+      formData.append("userId", userId);
+      formData.append("username", username);
+      formData.append("profilePic", currentProfilePic);
+
+      if (media.length > 0) {
+        media.forEach((file) => {
+          formData.append("file", file);
+        });
+      }
+
       const res = await axios.post(`${POSTS_URL}/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -206,6 +249,7 @@ export default function Feed() {
         maxContentLength: Infinity,
         maxBodyLength: Infinity
       });
+
       if (res.data) {
         // Add the new post at the top of the list
         const newPost = {
@@ -213,12 +257,12 @@ export default function Feed() {
           comments: 0,
           likes: 0,
           likedBy: [],
-          userProfilePic: profilePic,
+          userProfilePic: currentProfilePic,
           username: username
         };
         setPosts(prevPosts => [newPost, ...prevPosts]);
-      setCaption("");
-      setMedia([]);
+        setCaption("");
+        setMedia([]);
         setError(null);
       }
     } catch (err) {
@@ -461,6 +505,10 @@ export default function Feed() {
       console.error("Error deleting comment:", err);
       setError("Failed to delete comment. Please try again.");
     }
+  };
+
+  const handleProfilePicUpdate = async (e) => {
+    // ... function code ...
   };
 
   // Add useEffect to fetch posts when component mounts

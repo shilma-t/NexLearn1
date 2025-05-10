@@ -260,6 +260,20 @@ const CommunityGroupDetail = () => {
           </button>
         )}
         <hr style={{ borderColor: '#333' }} />
+        <h4 style={{ color: '#fff', marginBottom: 16 }}>Messages</h4>
+        <div style={{ marginBottom: 24, maxHeight: '400px', overflowY: 'auto' }}>
+          {group.messages && group.messages.map((msg, idx) => (
+            <div key={idx} className="mb-3" style={{ background: '#2a2a2a', padding: '12px', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ color: '#fff', fontWeight: 'bold' }}>{msg.senderName}</span>
+                <span style={{ color: '#aaa', fontSize: '0.8em' }}>
+                  {new Date(msg.timestamp).toLocaleString()}
+                </span>
+              </div>
+              <p style={{ color: '#fff', margin: 0 }}>{msg.content}</p>
+            </div>
+          ))}
+        </div>
         <h4 style={{ color: '#fff', marginBottom: 16 }}>System Messages</h4>
         <div style={{ marginBottom: 24 }}>
           {group.systemMessages && group.systemMessages.map((msg, idx) => (

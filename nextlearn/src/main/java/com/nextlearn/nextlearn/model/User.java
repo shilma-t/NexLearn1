@@ -11,6 +11,7 @@ public class User {
     private String email;
     private String password;
     private String provider;
+    private String profilePic;
 
     // Getters & Setters
     public String getId() { return id; }
@@ -27,4 +28,7 @@ public class User {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+
+    public String getProfilePic() { return profilePic; }
+    public void setProfilePic(String profilePic) { this.profilePic = profilePic; }
 }

@@ -148,6 +148,7 @@
   height: 80vh;
   border-radius: 4px;
   overflow: hidden;
+  color: #262626;
 }
 
 .postModalLeft {
@@ -195,6 +196,7 @@
 .postModalUsername {
   font-weight: 600;
   font-size: 14px;
+  color: #262626;
 }
 
 .postModalActions {
@@ -210,10 +212,12 @@
 .captionUsername {
   font-weight: 600;
   margin-right: 8px;
+  color: #262626;
 }
 
 .captionText {
   font-size: 14px;
+  color: #262626;
 }
 
 .postModalInteractions {
@@ -257,11 +261,22 @@
 .comment {
   margin-bottom: 8px;
   font-size: 14px;
+  background: #fff !important;
+  color: #111 !important;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
 .commentUsername {
   font-weight: 600;
   margin-right: 8px;
+  color: #111 !important;
+}
+
+.commentContent {
+  color: #111 !important;
 }
 
 .commentInput {
@@ -276,6 +291,12 @@
   border: none;
   outline: none;
   font-size: 14px;
+  color: #262626;
+  background-color: transparent;
+}
+
+.commentInput input::placeholder {
+  color: #8e8e8e;
 }
 
 .commentInput button {

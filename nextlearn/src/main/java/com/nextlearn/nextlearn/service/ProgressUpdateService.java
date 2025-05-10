@@ -26,6 +26,10 @@ public class ProgressUpdateService {
         return repository.findAll();
     }
 
+    public Optional<ProgressUpdate> getProgressById(String id) {
+        return repository.findById(id);
+    }
+
     public List<ProgressUpdate> getUserProgress(String userId) {
         return repository.findByUserId(userId);
     }
@@ -83,12 +87,9 @@ public class ProgressUpdateService {
                 break;
             case CERTIFICATION:
                 if (p.getCertificationProgress() != null) {
-                    int total = 3;
-                    int completed = 0;
-                    if (p.getCertificationProgress().isEnrolled()) completed++;
-                    if (p.getCertificationProgress().isExamTaken()) completed++;
-                    if (p.getCertificationProgress().isCertified()) completed++;
-                    return (completed * 100.0) / total;
+                    if (p.getCertificationProgress().isCertified()) return 100.0;
+                    if (p.getCertificationProgress().isExamTaken()) return 66.0;
+                    if (p.getCertificationProgress().isEnrolled()) return 33.0;
                 }
                 break;
         }

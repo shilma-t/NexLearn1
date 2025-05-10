@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import axiosInstance from '../../utils/axios';
+import './LearningPlanForm.css';
 
 const EditLearningPlanForm = () => {
   const { id } = useParams();
@@ -24,7 +25,11 @@ const EditLearningPlanForm = () => {
         if (response && response.data) {
           const planData = {
             ...response.data,
-            topics: response.data.topics || []
+            topics: response.data.topics.map(topic => ({
+              title: topic.name,
+              description: topic.description,
+              resources: topic.resources && topic.resources.length > 0 ? topic.resources[0].name : ''
+            }))
           };
           setPlan(planData);
         } else {
@@ -38,36 +43,6 @@ const EditLearningPlanForm = () => {
     };
     fetchPlan();
   }, [id]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setError('');
-
-    try {
-      // Transform the data to match backend expectations
-      const planData = {
-        ...plan,
-        topics: plan.topics.map(topic => ({
-          name: topic.title,
-          description: topic.description,
-          resources: [{
-            name: topic.resources,
-            url: '',
-            type: 'TEXT'
-          }]
-        }))
-      };
-
-      await axiosInstance.put(`/plans/${id}`, planData);
-      navigate(`/plan/${id}`);
-    } catch (err) {
-      console.error('Error updating plan:', err);
-      setError(`Failed to update learning plan: ${err.message || 'Unknown error'}`);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -106,103 +81,161 @@ const EditLearningPlanForm = () => {
     }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+
+    try {
+      // Transform the data to match backend expectations
+      const planData = {
+        ...plan,
+        topics: plan.topics.map(topic => ({
+          name: topic.title.trim(),
+          description: topic.description.trim(),
+          resources: [{
+            name: topic.resources ? topic.resources.trim() : '',
+            url: '',
+            type: 'OTHER'
+          }]
+        }))
+      };
+
+      await axiosInstance.put(`/plans/${id}`, planData);
+      navigate(`/plan/${id}`);
+    } catch (err) {
+      console.error('Error updating plan:', err);
+      setError(`Failed to update learning plan: ${err.message || 'Unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-danger">{error}</div>;
   if (!plan) return <div>No plan found.</div>;
 
   return (
-    <Container className="mt-4">
-      <h2>Edit Learning Plan</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type="text"
-            name="title"
-            value={plan.title}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            name="description"
-            value={plan.description}
-            onChange={handleChange}
-            rows={3}
-          />
-        </Form.Group>
-
-        <h4>Topics</h4>
-        {plan.topics.map((topic, index) => (
-          <div key={index} className="mb-4 p-3 border rounded">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <h5>Topic {index + 1}</h5>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => removeTopic(index)}
-              >
-                Remove
-              </Button>
-            </div>
-            <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                value={topic.title}
-                onChange={(e) => handleTopicChange(index, 'title', e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={topic.description}
-                onChange={(e) => handleTopicChange(index, 'description', e.target.value)}
-                rows={2}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Resources</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={topic.resources}
-                onChange={(e) => handleTopicChange(index, 'resources', e.target.value)}
-                rows={2}
-                placeholder="Enter resources (one per line)"
-              />
-            </Form.Group>
+    <div className="learning-plan-form">
+      <div className="form-container">
+        <h1>Edit Learning Plan</h1>
+        
+        {error && (
+          <div className="error-message" onClick={() => setError(null)}>
+            {error}
           </div>
-        ))}
+        )}
 
-        <Button
-          type="button"
-          variant="outline-primary"
-          onClick={addTopic}
-          className="mb-4"
-        >
-          Add Topic
-        </Button>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              value={plan.title}
+              onChange={handleChange}
+              required
+              placeholder="Enter plan title"
+            />
+          </div>
 
-        <div className="d-flex gap-2">
-          <Button type="submit" variant="primary" disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => navigate(`/plan/${id}`)}
-          >
-            Cancel
-          </Button>
-        </div>
-      </Form>
-    </Container>
+          <div className="form-group">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              value={plan.description}
+              onChange={handleChange}
+              required
+              placeholder="Describe your learning plan"
+            />
+          </div>
+
+          <div className="topics-section">
+            <h2>Topics</h2>
+            {plan.topics.map((topic, index) => (
+              <div key={index} className="topic-group">
+                <div className="topic-header">
+                  <h3>Topic {index + 1}</h3>
+                  {plan.topics.length > 1 && (
+                    <button
+                      type="button"
+                      className="remove-topic"
+                      onClick={() => removeTopic(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={`topic-title-${index}`}>Title</label>
+                  <input
+                    type="text"
+                    id={`topic-title-${index}`}
+                    name={`topic.title`}
+                    value={topic.title}
+                    onChange={(e) => handleTopicChange(index, 'title', e.target.value)}
+                    required
+                    placeholder="Enter topic title"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={`topic-description-${index}`}>Description</label>
+                  <textarea
+                    id={`topic-description-${index}`}
+                    name={`topic.description`}
+                    value={topic.description}
+                    onChange={(e) => handleTopicChange(index, 'description', e.target.value)}
+                    required
+                    placeholder="Describe the topic"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor={`topic-resources-${index}`}>Resources</label>
+                  <textarea
+                    id={`topic-resources-${index}`}
+                    name={`topic.resources`}
+                    value={topic.resources}
+                    onChange={(e) => handleTopicChange(index, 'resources', e.target.value)}
+                    placeholder="Add learning resources (links, books, etc.)"
+                  />
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              className="add-topic"
+              onClick={addTopic}
+            >
+              Add Topic
+            </button>
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="submit-button"
+              disabled={saving}
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => navigate(`/plan/${id}`)}
+              disabled={saving}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

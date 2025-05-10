@@ -97,7 +97,6 @@ button:focus-visible {
 /* Modal styles */
 .modal-content {
   background-color: var(--secondary-bg) !important;
-  color: var(--text-primary) !important;
   border: 1px solid var(--border-color) !important;
 }
 

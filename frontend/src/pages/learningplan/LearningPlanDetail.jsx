@@ -251,30 +251,58 @@ const LearningPlanDetail = () => {
               </div>
             </Card.Header>
             <Card.Body style={{ padding: '20px' }}>
-              <Card.Text style={{ color: '#ccc', marginBottom: '24px' }}>{plan.description}</Card.Text>
-              <h4 style={{ color: '#fff', marginBottom: '16px' }}>Topics</h4>
-              <ListGroup>
-                {plan.learningTopics?.map((topic, index) => (
-                  <ListGroup.Item 
-                    key={index}
-                    style={{ 
-                      background: '#2a2a2a', 
-                      border: '1px solid #333',
-                      marginBottom: '8px',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <h5 style={{ color: '#fff' }}>{topic.title}</h5>
-                    <p style={{ color: '#ccc' }}>{topic.description}</p>
-                    {topic.resources && (
-                      <div>
-                        <strong style={{ color: '#fff' }}>Resources:</strong>
-                        <p style={{ color: '#ccc' }}>{topic.resources}</p>
-                      </div>
-                    )}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
+              <div className="mb-4">
+                <h4 style={{ color: '#fff', marginBottom: '10px' }}>Description</h4>
+                <p style={{ color: '#ccc' }}>{plan.description}</p>
+              </div>
+
+              <div className="mb-4">
+                <h4 style={{ color: '#fff', marginBottom: '20px' }}>Learning Topics</h4>
+                {plan.topics && plan.topics.length > 0 ? (
+                  <div className="topics-list">
+                    {plan.topics.map((topic, index) => (
+                      <Card key={index} style={{ 
+                        background: '#2a2a2a', 
+                        border: '1px solid #333',
+                        marginBottom: '20px',
+                        borderRadius: '8px'
+                      }}>
+                        <Card.Body>
+                          <h5 style={{ color: '#fff', marginBottom: '10px' }}>{topic.name}</h5>
+                          <p style={{ color: '#ccc', marginBottom: '15px' }}>{topic.description}</p>
+                          
+                          {topic.resources && topic.resources.length > 0 && (
+                            <div className="resources-section">
+                              <h6 style={{ color: '#fff', marginBottom: '10px' }}>Resources:</h6>
+                              {topic.resources.map((resource, resIndex) => (
+                                <div key={resIndex} style={{ 
+                                  background: '#181818', 
+                                  padding: '15px',
+                                  borderRadius: '6px',
+                                  color: '#ccc',
+                                  whiteSpace: 'pre-wrap',
+                                  marginBottom: '10px'
+                                }}>
+                                  {resource.name}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ color: '#ccc' }}>No topics added to this learning plan yet.</p>
+                )}
+              </div>
+
+              <div className="mt-4">
+                <small style={{ color: '#888' }}>
+                  Created: {new Date(plan.createdAt).toLocaleDateString()}
+                  {plan.updatedAt && ` • Last updated: ${new Date(plan.updatedAt).toLocaleDateString()}`}
+                </small>
+              </div>
             </Card.Body>
             <Card.Footer style={{ 
               background: '#181818', 

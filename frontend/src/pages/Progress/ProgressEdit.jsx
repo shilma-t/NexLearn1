@@ -388,10 +388,12 @@ const ProgressEdit = () => {
     try {
       const response = await fetch(`http://localhost:9006/api/progress/${id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(progressData),
+        body: JSON.stringify(progressData)
       });
 
       if (response.ok) {

@@ -59,10 +59,14 @@ const LearningPlanForm = () => {
         description: formData.description.trim(),
         userId: userData.email,
         status: 'IN_PROGRESS',
-        learningTopics: formData.topics.map(topic => ({
-          title: topic.title.trim(),
+        topics: formData.topics.map(topic => ({
+          name: topic.title.trim(),
           description: topic.description.trim(),
-          resources: topic.resources ? topic.resources.trim() : ''
+          resources: [{
+            name: topic.resources ? topic.resources.trim() : '',
+            url: '',
+            type: 'OTHER'
+          }]
         }))
       };
 
