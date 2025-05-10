@@ -8,31 +8,26 @@
 /* Body Styling */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: black; /* Kept black from posts-creation */
-  color: #333;
+  background: var(--primary-bg);
+  color: var(--text-primary);
   overflow-x: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
+  width: 100vw;
+  display: block;
+  align-items: unset;
+  justify-content: unset;
 }
 
 /* App main container */
-.appContainer {
-  padding-top: 50px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* Container styling */
-.container {
-  max-width: 700px;
-  width: 100%;
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+.appContainer, .container {
+  max-width: unset;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  background: unset;
+  box-shadow: none;
+  border-radius: 0;
+  text-align: unset;
 }
 
 /* Title styling */
@@ -48,13 +43,623 @@ body {
 
 /* Root element */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: unset;
+  margin: 0;
+  padding: 0;
+  text-align: unset;
+  width: 100vw;
+  min-height: 100vh;
 }
 
 /* Additional text color */
 .read-the-docs {
   color: #888;
+}
+
+/* Layout Structure */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--primary-bg);
+}
+
+/* Navbar */
+.navbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #4B0082 !important;
+  color: #fff !important;
+  border-bottom: none;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  box-shadow: 0 2px 8px rgba(75,0,130,0.08);
+}
+
+.navbar .navbar-brand {
+  color: #fff !important;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.navbar .logout-btn {
+  background: #fff;
+  color: #4B0082;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 22px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-left: 18px;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(75,0,130,0.08);
+  cursor: pointer;
+}
+.navbar .logout-btn:hover {
+  background: #4B0082;
+  color: #fff;
+  border: 1.5px solid #fff;
+}
+
+/* Sidebar */
+.insta-sidebar, .sidebar {
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  background: #000;
+  color: #fff;
+  border-right: 1px solid #222;
+  height: calc(100vh - 60px);
+  position: fixed !important;
+  top: 60px !important;
+  left: 0;
+  bottom: 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 10px;
+}
+
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu a:hover {
+  background-color: var(--accent-color);
+}
+
+.sidebar-menu i {
+  margin-right: 10px;
+  color: var(--text-primary);
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 260px;
+  margin-top: 60px;
+  padding: 32px 24px 24px 24px;
+  flex: 1;
+  min-height: calc(100vh - 60px);
+  width: calc(100vw - 260px);
+  background: var(--primary-bg);
+  overflow-y: auto;
+}
+
+/* Instagram-like Feed */
+.feed-container {
+  width: 100%;
+  max-width: unset;
+  margin: 0;
+  padding: 0;
+}
+
+.post {
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.post-header {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.post-content {
+  padding: 15px;
+}
+
+.post-caption {
+  text-align: left;
+  margin-top: 10px;
+  color: var(--text-primary);
+}
+
+/* Twitter-like Login Page */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-bg);
+}
+
+.login-box {
+  background-color: var(--secondary-bg);
+  padding: 40px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--border-color);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-form input {
+  width: 100%;
+}
+
+.login-button {
+  background-color: var(--accent-color);
+  color: var(--text-primary);
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #5a1a9c;
+}
+
+/* Notification Modal */
+.notification-modal .modal-content {
+  background-color: var(--secondary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.notification-modal .modal-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notification-modal .modal-footer {
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 60px;
+    padding: 10px 0;
+  }
+  .main-content {
+    margin-left: 60px;
+    width: calc(100vw - 60px);
+    padding: 16px 4px 4px 4px;
+  }
+}
+
+/* NexLearn Login Split Layout */
+.nexlearn-login-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+}
+
+.nexlearn-login-left {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-bg);
+}
+
+.nexlearn-logo {
+  font-size: 7vw;
+  font-weight: 900;
+  color: #e5e5e5;
+  letter-spacing: -2px;
+  text-shadow: 0 2px 32px #4B0082, 0 1px 0 #222;
+  user-select: none;
+}
+
+.nexlearn-login-right {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 8vw;
+  background: var(--primary-bg);
+}
+
+.nexlearn-login-right h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.nexlearn-login-right h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.nexlearn-social-btn {
+  width: 100%;
+  background: #fff;
+  color: #222;
+  border: none;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.9em 0;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.nexlearn-social-btn:hover {
+  background: #f0f0f0;
+}
+
+.nexlearn-or {
+  width: 100%;
+  text-align: center;
+  color: var(--text-secondary);
+  margin: 1.5rem 0 1rem 0;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  position: relative;
+}
+.nexlearn-or:before, .nexlearn-or:after {
+  content: '';
+  display: inline-block;
+  width: 40%;
+  height: 1px;
+  background: var(--border-color);
+  vertical-align: middle;
+  margin: 0 0.5em;
+}
+
+.nexlearn-login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.nexlearn-login-form input {
+  width: 100%;
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1em;
+  font-size: 1.1rem;
+  transition: border 0.2s;
+}
+.nexlearn-login-form input:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+.nexlearn-main-btn {
+  width: 100%;
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.9em 0;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.nexlearn-main-btn:hover {
+  background: #5a1a9c;
+}
+
+.nexlearn-login-footer {
+  margin-top: 2.5rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+.nexlearn-login-footer a {
+  color: var(--accent-color);
+  font-weight: 600;
+  margin-left: 0.5em;
+}
+
+@media (max-width: 900px) {
+  .nexlearn-login-wrapper {
+    flex-direction: column;
+  }
+  .nexlearn-login-left, .nexlearn-login-right {
+    flex: unset;
+    width: 100vw;
+    min-height: 40vh;
+    padding: 2rem 1rem;
+    justify-content: center;
+    align-items: center;
+  }
+  .nexlearn-login-right {
+    padding: 2rem 1rem;
+    align-items: center;
+  }
+  .nexlearn-login-right h1, .nexlearn-login-right h2 {
+    text-align: center;
+  }
+  .nexlearn-login-form {
+    max-width: 400px;
+  }
+}
+
+.nexlearn-login-content {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.nexlearn-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nexlearn-modal {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  border: 2px solid var(--accent-color);
+  padding: 2.5rem 2rem 2rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  min-width: unset;
+  position: relative;
+  animation: fadeInModal 0.2s;
+}
+.nexlearn-modal-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 10;
+}
+.nexlearn-modal-close:hover {
+  color: #fff;
+  background: var(--accent-color);
+  border-radius: 50%;
+}
+@keyframes fadeInModal {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 500px) {
+  .nexlearn-modal {
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+  }
+}
+
+.nexlearn-success-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0 1rem 0;
+}
+.nexlearn-success-icon {
+  margin-bottom: 1.2rem;
+  animation: popIn 0.4s cubic-bezier(.68,-0.55,.27,1.55);
+}
+.nexlearn-success-text {
+  color: var(--accent-color);
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+@keyframes popIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.insta-home-row {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: #000;
+  width: 100vw;
+  margin-top: 60px; /* below navbar */
+}
+
+.insta-feed, .profile-container {
+  margin-left: 260px !important;
+  margin-top: 60px !important;
+  min-height: calc(100vh - 60px);
+  width: calc(100vw - 260px - 400px);
+}
+
+.insta-feed > * {
+  width: 100%;
+  max-width: 800px;
+}
+
+.insta-rightbar, .rightbar {
+  margin-top: 60px !important;
+  margin-left: 260px !important;
+  position: fixed !important;
+  right: 0;
+  top: 60px;
+  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
+  height: calc(100vh - 60px);
+  background: #111 !important;
+  color: #fff !important;
+  border-left: 1px solid #222;
+  z-index: 1001;
+  overflow-y: auto;
+}
+
+/* Remove white backgrounds from containers except images */
+.feedWrapper, .shareBox, .postCard, .rightbar, .rightbarWrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Sidebar icons and text white */
+.sidebar, .sidebarLink, .sidebarIcon, .sidebarText {
+  background: #000 !important;
+  color: #fff !important;
+}
+.sidebarLink.active, .sidebarLink:hover {
+  background: #181818 !important;
+  color: #fff !important;
+  border-left: 4px solid #4B0082;
+}
+
+/* Feed post styling */
+.postCard {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #222 !important;
+}
+.postHeader, .postActions, .postCaption, .commentsSection {
+  background: transparent !important;
+  color: #fff !important;
+}
+.captionUsername, .captionText, .commentUsername, .commentContent {
+  color: #fff !important;
+}
+
+/* Rightbar styling */
+.rightbar, .rightbarWrapper {
+  background: #111 !important;
+  color: #fff !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .insta-rightbar, .rightbar {
+    display: none !important;
+  }
+}
+@media (max-width: 1100px) {
+  .insta-rightbar, .rightbar {
+    display: none !important;
+  }
+  .insta-feed, .profile-container {
+    width: calc(100vw - 260px);
+  }
+}
+@media (max-width: 700px) {
+  .insta-sidebar, .sidebar {
+    display: none !important;
+  }
+  .insta-feed, .profile-container {
+    margin-left: 0 !important;
+    width: 100vw;
+  }
+}
+
+/* Sidebar SVG icon style */
+.sidebarIcon svg {
+  width: 28px;
+  height: 28px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.2;
+  margin-right: 18px;
+  vertical-align: middle;
+}
+.sidebarLink, .sidebarText {
+  color: #fff !important;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+.sidebarLink.active, .sidebarLink:hover {
+  background: #181818 !important;
+  color: #fff !important;
+  border-left: 4px solid #fff;
+}
+
+/* Feed wider */
+.feedWrapper, .feed {
+  max-width: 800px !important;
+}
+
+/* Rightbar wider */
+.rightbar, .rightbarWrapper {
+  width: 100%;
+  max-width: 400px;
+  background: #111 !important;
+  color: #fff !important;
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axios';
+import Sidebar from '../../components/sidebar/sidebar';
 
 const CommunityGroupDetail = () => {
   const { id } = useParams();
@@ -136,102 +137,156 @@ const CommunityGroupDetail = () => {
   if (!group) return <div>Group not found</div>;
 
   return (
-    <div className="container mt-4">
-      <h2>{group.name}</h2>
-      {justAdded && (
-        <div className="alert alert-info">You were added to the community by the owner.</div>
-      )}
-      <div className="mb-2">
-        {editingDesc ? (
-          <>
-            <textarea value={desc} onChange={e => setDesc(e.target.value)} className="form-control mb-2" />
-            <button className="btn btn-success btn-sm me-2" onClick={handleUpdateDesc}>Save</button>
-            <button className="btn btn-secondary btn-sm" onClick={() => setEditingDesc(false)}>Cancel</button>
-          </>
-        ) : (
-          <>
-            <span>{group.description}</span>
-            {isOwner && <button className="btn btn-link btn-sm" onClick={() => setEditingDesc(true)}>Edit</button>}
-          </>
-        )}
-      </div>
-      <div className="mb-3">
-        <strong>Members:</strong>
-        <ul>
-          {group.members.map(email => (
-            <li key={email} className="d-flex align-items-center">
-              <span>{email}</span>
-              {isOwner && email !== userEmail && (
-                <button className="btn btn-danger btn-sm ms-2" onClick={() => handleRemoveMember(email)}>Remove</button>
-              )}
-            </li>
-          ))}
-        </ul>
-        {isOwner && (
-          <div className="mb-2">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search users to add..."
-              value={userSearch}
-              onChange={e => setUserSearch(e.target.value)}
-              disabled={addingMember}
-            />
-            {userResults.length > 0 && (
-              <ul className="list-group mt-1">
-                {userResults.map(u => (
-                  <li key={u.email} className="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{u.name} ({u.email})</span>
-                    <button className="btn btn-primary btn-sm" onClick={() => handleAddMember(u.email, u.name)} disabled={addingMember}>Add</button>
-                  </li>
-                ))}
-              </ul>
-            )}
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+      <Sidebar />
+      <main style={{
+        marginLeft: '260px',
+        width: '100%',
+        padding: '80px 32px 40px',
+        background: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+      }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, marginBottom: 24 }}>{group.name}</h2>
+        {justAdded && (
+          <div className="alert alert-info" style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}>
+            You were added to the community by the owner.
           </div>
         )}
-        {!isOwner && (
-          <button className="btn btn-warning btn-sm" onClick={handleLeaveGroup}>Leave Group</button>
-        )}
-      </div>
-      {isOwner && (
-        <button className="btn btn-danger mb-3" onClick={handleDeleteGroup}>Delete Group</button>
-      )}
-      <hr />
-      <h4>System Messages</h4>
-      <div className="mb-3" style={{ maxHeight: 100, overflowY: 'auto', border: '1px solid #eee', padding: 10 }}>
-        {group.systemMessages && group.systemMessages.length > 0 ? (
-          group.systemMessages.map((msg, idx) => (
-            <div key={idx} className="text-info small">{msg}</div>
-          ))
-        ) : (
-          <div className="text-muted small">No system messages.</div>
-        )}
-      </div>
-      <h4>Messages</h4>
-      <div className="mb-3" style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #eee', padding: 10 }}>
-        {group.messages.length === 0 ? (
-          <div>No messages yet.</div>
-        ) : (
-          group.messages.map(msg => (
-            <div key={msg.id} className="mb-2">
-              <strong>{msg.senderName || msg.senderId}:</strong> {msg.content}
-              <span className="text-muted small ms-2">{new Date(msg.timestamp).toLocaleString()}</span>
+        <div className="mb-4">
+          {editingDesc ? (
+            <>
+              <textarea 
+                value={desc} 
+                onChange={e => setDesc(e.target.value)} 
+                className="form-control mb-2" 
+                style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}
+              />
+              <button 
+                className="btn btn-success btn-sm me-2" 
+                onClick={handleUpdateDesc}
+                style={{ background: '#28a745', border: 'none' }}
+              >
+                Save
+              </button>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => setEditingDesc(false)}
+                style={{ background: '#6c757d', border: 'none' }}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <span style={{ color: '#ccc' }}>{group.description}</span>
+              {isOwner && (
+                <button 
+                  className="btn btn-link btn-sm" 
+                  onClick={() => setEditingDesc(true)}
+                  style={{ color: '#4b0076', textDecoration: 'none' }}
+                >
+                  Edit
+                </button>
+              )}
+            </>
+          )}
+        </div>
+        <div className="mb-4">
+          <strong style={{ color: '#fff' }}>Members:</strong>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {group.members.map(email => (
+              <li key={email} className="d-flex align-items-center mb-2" style={{ color: '#ccc' }}>
+                <span>{email}</span>
+                {isOwner && email !== userEmail && (
+                  <button 
+                    className="btn btn-danger btn-sm ms-2" 
+                    onClick={() => handleRemoveMember(email)}
+                    style={{ background: '#dc3545', border: 'none' }}
+                  >
+                    Remove
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          {isOwner && (
+            <div className="mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search users to add..."
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+                disabled={addingMember}
+                style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}
+              />
+              {userResults.length > 0 && (
+                <ul className="list-group mt-2">
+                  {userResults.map(u => (
+                    <li key={u.email} className="list-group-item d-flex justify-content-between align-items-center" style={{ background: '#181818', border: '1px solid #333', color: '#fff' }}>
+                      <span>{u.name} ({u.email})</span>
+                      <button 
+                        className="btn btn-primary btn-sm" 
+                        onClick={() => handleAddMember(u.email, u.name)} 
+                        disabled={addingMember}
+                        style={{ background: '#4b0076', border: 'none' }}
+                      >
+                        Add
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          ))
+          )}
+          {!isOwner && (
+            <button 
+              className="btn btn-warning btn-sm" 
+              onClick={handleLeaveGroup}
+              style={{ background: '#ffc107', border: 'none', color: '#000' }}
+            >
+              Leave Group
+            </button>
+          )}
+        </div>
+        {isOwner && (
+          <button 
+            className="btn btn-danger mb-4" 
+            onClick={handleDeleteGroup}
+            style={{ background: '#dc3545', border: 'none' }}
+          >
+            Delete Group
+          </button>
         )}
-      </div>
-      {isOwner && (
-        <form onSubmit={handleSendMessage} className="d-flex">
-          <input
-            type="text"
-            className="form-control me-2"
-            value={message}
-            onChange={e => setMessage(e.target.value)}
-            placeholder="Type a message..."
-          />
-          <button type="submit" className="btn btn-primary">Send</button>
+        <hr style={{ borderColor: '#333' }} />
+        <h4 style={{ color: '#fff', marginBottom: 16 }}>System Messages</h4>
+        <div style={{ marginBottom: 24 }}>
+          {group.systemMessages && group.systemMessages.map((msg, idx) => (
+            <div key={idx} className="alert alert-info mb-2" style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}>
+              {msg}
+            </div>
+          ))}
+        </div>
+        <form onSubmit={handleSendMessage} className="mt-4">
+          <div className="mb-3">
+            <textarea
+              className="form-control"
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}
+            />
+          </div>
+          <button 
+            type="submit" 
+            className="btn btn-primary"
+            style={{ background: '#4b0076', border: 'none' }}
+          >
+            Send Message
+          </button>
         </form>
-      )}
+      </main>
     </div>
   );
 };

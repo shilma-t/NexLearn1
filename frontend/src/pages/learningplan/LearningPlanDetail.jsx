@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, ListGroup, Badge, Alert } from 'react-bootstrap';
+import { FaPencilAlt, FaTrash, FaShare, FaArrowLeft } from 'react-icons/fa';
 import axiosInstance from '../../utils/axios';
 import SharePlanModal from './SharePlanModal';
+import Sidebar from '../../components/sidebar/sidebar';
 
 const LearningPlanDetail = () => {
   const { id } = useParams();
@@ -98,90 +100,208 @@ const LearningPlanDetail = () => {
   };
 
   if (loading) {
-    return <div className="text-center mt-5">Loading...</div>;
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+        <Sidebar />
+        <main style={{
+          marginLeft: '260px',
+          width: '100%',
+          padding: '80px 32px 40px',
+          background: '#000',
+          color: '#fff',
+          minHeight: '100vh',
+        }}>
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <Container className="mt-4">
-        <Alert variant="danger">
-          {error}
-          <div className="mt-3">
-            <Button variant="primary" onClick={() => navigate('/plans')}>
-              Return to Plans
-            </Button>
-          </div>
-        </Alert>
-      </Container>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+        <Sidebar />
+        <main style={{
+          marginLeft: '260px',
+          width: '100%',
+          padding: '80px 32px 40px',
+          background: '#000',
+          color: '#fff',
+          minHeight: '100vh',
+        }}>
+          <Alert variant="danger" style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}>
+            {error}
+            <div className="mt-3">
+              <Button 
+                variant="primary" 
+                onClick={() => navigate('/plans')}
+                style={{ background: '#4b0076', border: 'none' }}
+              >
+                Return to Plans
+              </Button>
+            </div>
+          </Alert>
+        </main>
+      </div>
     );
   }
 
   if (!plan) {
     return (
-      <Container className="mt-4">
-        <Alert variant="warning">
-          Learning plan not found
-          <div className="mt-3">
-            <Button variant="primary" onClick={() => navigate('/plans')}>
-              Return to Plans
-            </Button>
-          </div>
-        </Alert>
-      </Container>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+        <Sidebar />
+        <main style={{
+          marginLeft: '260px',
+          width: '100%',
+          padding: '80px 32px 40px',
+          background: '#000',
+          color: '#fff',
+          minHeight: '100vh',
+        }}>
+          <Alert variant="warning" style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}>
+            Learning plan not found
+            <div className="mt-3">
+              <Button 
+                variant="primary" 
+                onClick={() => navigate('/plans')}
+                style={{ background: '#4b0076', border: 'none' }}
+              >
+                Return to Plans
+              </Button>
+            </div>
+          </Alert>
+        </main>
+      </div>
     );
   }
 
   return (
-    <Container className="mt-4">
-      <Card>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <h2>{plan.title}</h2>
-          {isOwner && (
-            <div>
-              <Button variant="primary" onClick={handleEdit} className="me-2">
-                Edit
-              </Button>
-              <Button variant="danger" onClick={handleDelete} className="me-2">
-                Delete
-              </Button>
-              <Button variant="success" onClick={handleShare} className="me-2">
-                Share
-              </Button>
-              <Button variant="info" onClick={handleShareWithAll}>
-                Share with All
-              </Button>
-            </div>
-          )}
-        </Card.Header>
-            <Card.Body>
-          <Card.Text>{plan.description}</Card.Text>
-          <h4>Topics</h4>
-          <ListGroup>
-            {plan.learningTopics?.map((topic, index) => (
-              <ListGroup.Item key={index}>
-                <h5>{topic.title}</h5>
-                <p>{topic.description}</p>
-                {topic.resources && (
-                  <div>
-                    <strong>Resources:</strong>
-                    <p>{topic.resources}</p>
-              </div>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+      <Sidebar />
+      <main style={{
+        marginLeft: '260px',
+        width: '100%',
+        padding: '80px 32px 40px',
+        background: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <Button 
+            variant="link" 
+            onClick={() => navigate(-1)}
+            style={{ 
+              color: '#fff', 
+              textDecoration: 'none',
+              padding: 0,
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <FaArrowLeft /> Back
+          </Button>
+
+          <Card style={{ background: '#181818', border: '1px solid #333', borderRadius: 16 }}>
+            <Card.Header style={{ 
+              background: '#181818', 
+              borderBottom: '1px solid #333',
+              padding: '20px'
+            }}>
+              <div className="d-flex justify-content-between align-items-center">
+                <h2 style={{ color: '#fff', margin: 0 }}>{plan.title}</h2>
+                {isOwner && (
+                  <div className="d-flex gap-2">
+                    <Button 
+                      variant="link" 
+                      onClick={handleEdit}
+                      style={{ 
+                        color: '#fff',
+                        padding: '8px',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      <FaPencilAlt size={20} />
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      onClick={handleDelete}
+                      style={{ 
+                        color: '#fff',
+                        padding: '8px',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      <FaTrash size={20} />
+                    </Button>
+                    <Button 
+                      variant="link" 
+                      onClick={handleShareWithAll}
+                      style={{ 
+                        color: '#fff',
+                        padding: '8px',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      <FaShare size={20} />
+                    </Button>
+                  </div>
                 )}
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
+              </div>
+            </Card.Header>
+            <Card.Body style={{ padding: '20px' }}>
+              <Card.Text style={{ color: '#ccc', marginBottom: '24px' }}>{plan.description}</Card.Text>
+              <h4 style={{ color: '#fff', marginBottom: '16px' }}>Topics</h4>
+              <ListGroup>
+                {plan.learningTopics?.map((topic, index) => (
+                  <ListGroup.Item 
+                    key={index}
+                    style={{ 
+                      background: '#2a2a2a', 
+                      border: '1px solid #333',
+                      marginBottom: '8px',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <h5 style={{ color: '#fff' }}>{topic.title}</h5>
+                    <p style={{ color: '#ccc' }}>{topic.description}</p>
+                    {topic.resources && (
+                      <div>
+                        <strong style={{ color: '#fff' }}>Resources:</strong>
+                        <p style={{ color: '#ccc' }}>{topic.resources}</p>
+                      </div>
+                    )}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
             </Card.Body>
-        <Card.Footer>
-          <Badge bg="info">Status: {plan.status}</Badge>
-        </Card.Footer>
+            <Card.Footer style={{ 
+              background: '#181818', 
+              borderTop: '1px solid #333',
+              padding: '16px 20px'
+            }}>
+              <Badge 
+                bg="info" 
+                style={{ 
+                  background: '#17a2b8',
+                  padding: '8px 16px',
+                  borderRadius: '4px'
+                }}
+              >
+                Status: {plan.status}
+              </Badge>
+            </Card.Footer>
           </Card>
 
-      <SharePlanModal
-        show={showShareModal}
-        onHide={() => setShowShareModal(false)}
-        onShare={handleShareSubmit}
-      />
-    </Container>
+          <SharePlanModal
+            show={showShareModal}
+            onHide={() => setShowShareModal(false)}
+            onShare={handleShareSubmit}
+          />
+        </div>
+      </main>
+    </div>
   );
 };
 

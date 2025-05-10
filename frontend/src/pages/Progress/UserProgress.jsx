@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './UserProgress.css'; 
+import Sidebar from '../../components/sidebar/sidebar';
 
 const UserProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
@@ -231,124 +232,140 @@ const UserProgress = () => {
   }
 
   return (
-    <div className="container mt-4 mb-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="page-title">My Progress Updates</h2>
-        <button 
-          className="btn btn-primary"
-          onClick={() => navigate('/create-progress')}
-        >
-          Add New Progress
-        </button>
-      </div>
-      
-      <div className="card mb-4 shadow-sm">
-        <div className="card-body">
-          <label htmlFor="filterType" className="form-label">Filter by Type:</label>
-          <select
-            id="filterType"
-            className="form-select"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+      <Sidebar />
+      <main style={{
+        marginLeft: '260px',
+        width: '100%',
+        padding: '80px 32px 40px',
+        background: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+      }}>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2 style={{ color: '#fff', fontWeight: 700 }}>My Progress Updates</h2>
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate('/create-progress')}
+            style={{ background: '#4b0076', border: 'none' }}
           >
-            <option value="ALL">All</option>
-            <option value="COURSE">Course</option>
-            <option value="READING">Reading</option>
-            <option value="SKILL">Skill</option>
-            <option value="PROJECT">Project</option>
-            <option value="CERTIFICATION">Certification</option>
-          </select>
+            Add New Progress
+          </button>
         </div>
-      </div>
-
-      {filteredUpdates.length === 0 && !loading ? (
-        <div className="alert alert-info">
-          No progress updates available for the selected type.
-        </div>
-      ) : (
-        <div className="row">
-          {filteredUpdates.map((update) => (
-            <div key={update.id} className="col-md-6 mb-4">
-              <div className="card progress-card h-100 shadow-sm border-0">
-                <div className="card-header bg-transparent">
-                  <h3 className="card-title update-title">{update.title}</h3>
-                  <span className="badge bg-primary">{update.type}</span>
-                </div>
-                <div className="card-body">
-                  <p className="card-text update-description">{update.description}</p>
-                  <div className="progress-details">
-                    {getProgressDetails(update)}
-                  </div>
-                  <p className="text-muted small">
-                    <span className="detail-label">Created:</span> {new Date(update.createdAt).toLocaleString()}
-                  </p>
-                  <p className="text-muted small">
-                    <span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}
-                  </p>
-                </div>
-                <div className="card-footer bg-transparent">
-                  <div className="d-flex justify-content-between">
-                    <button 
-                      className="btn btn-outline-primary"
-                      onClick={() => handleEdit(update.id)}
-                    >
-                      <i className="bi bi-pencil"></i> Edit
-                    </button>
-                    <button 
-                      className="btn btn-outline-danger"
-                      onClick={() => promptDelete(update.id)}
-                    >
-                      <i className="bi bi-trash"></i> Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <>
-          <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Confirm Delete</h5>
-                  <button 
-                    type="button" 
-                    className="btn-close" 
-                    onClick={() => setShowDeleteModal(false)}
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <p>Are you sure you want to delete this progress update?</p>
-                  
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={() => setShowDeleteModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="button" 
-                    className="btn btn-danger" 
-                    onClick={handleDeleteConfirm}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+        
+        <div className="card mb-4 shadow-sm" style={{ background: '#181818', border: '1px solid #333' }}>
+          <div className="card-body">
+            <label htmlFor="filterType" className="form-label" style={{ color: '#fff' }}>Filter by Type:</label>
+            <select
+              id="filterType"
+              className="form-select"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}
+            >
+              <option value="ALL">All</option>
+              <option value="COURSE">Course</option>
+              <option value="READING">Reading</option>
+              <option value="SKILL">Skill</option>
+              <option value="PROJECT">Project</option>
+              <option value="CERTIFICATION">Certification</option>
+            </select>
           </div>
-          <div className="modal-backdrop fade show" onClick={() => setShowDeleteModal(false)}></div>
-        </>
-      )}
+        </div>
+
+        {filteredUpdates.length === 0 && !loading ? (
+          <div className="alert alert-info" style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}>
+            No progress updates available for the selected type.
+          </div>
+        ) : (
+          <div className="row">
+            {filteredUpdates.map((update) => (
+              <div key={update.id} className="col-md-6 mb-4">
+                <div className="card progress-card h-100 shadow-sm border-0" style={{ background: '#181818', border: '1px solid #333' }}>
+                  <div className="card-header bg-transparent" style={{ borderBottom: '1px solid #333' }}>
+                    <h3 className="card-title update-title" style={{ color: '#fff' }}>{update.title}</h3>
+                    <span className="badge bg-primary" style={{ background: '#4b0076' }}>{update.type}</span>
+                  </div>
+                  <div className="card-body">
+                    <p className="card-text update-description" style={{ color: '#ccc' }}>{update.description}</p>
+                    <div className="progress-details" style={{ color: '#fff' }}>
+                      {getProgressDetails(update)}
+                    </div>
+                    <p className="text-muted small">
+                      <span className="detail-label">Created:</span> {new Date(update.createdAt).toLocaleString()}
+                    </p>
+                    <p className="text-muted small">
+                      <span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="card-footer bg-transparent" style={{ borderTop: '1px solid #333' }}>
+                    <div className="d-flex justify-content-between">
+                      <button 
+                        className="btn btn-outline-primary"
+                        onClick={() => handleEdit(update.id)}
+                        style={{ borderColor: '#4b0076', color: '#4b0076' }}
+                      >
+                        <i className="bi bi-pencil"></i> Edit
+                      </button>
+                      <button 
+                        className="btn btn-outline-danger"
+                        onClick={() => promptDelete(update.id)}
+                        style={{ borderColor: '#dc3545', color: '#dc3545' }}
+                      >
+                        <i className="bi bi-trash"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <>
+            <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
+              <div className="modal-dialog">
+                <div className="modal-content" style={{ background: '#181818', color: '#fff', border: '1px solid #333' }}>
+                  <div className="modal-header" style={{ borderBottom: '1px solid #333' }}>
+                    <h5 className="modal-title">Confirm Delete</h5>
+                    <button 
+                      type="button" 
+                      className="btn-close" 
+                      onClick={() => setShowDeleteModal(false)}
+                      aria-label="Close"
+                      style={{ filter: 'invert(1)' }}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <p>Are you sure you want to delete this progress update?</p>
+                  </div>
+                  <div className="modal-footer" style={{ borderTop: '1px solid #333' }}>
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      onClick={() => setShowDeleteModal(false)}
+                      style={{ background: '#2a2a2a', border: '1px solid #333' }}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn btn-danger" 
+                      onClick={handleDeleteConfirm}
+                      style={{ background: '#dc3545', border: 'none' }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-backdrop fade show" onClick={() => setShowDeleteModal(false)}></div>
+          </>
+        )}
+      </main>
     </div>
   );
 };

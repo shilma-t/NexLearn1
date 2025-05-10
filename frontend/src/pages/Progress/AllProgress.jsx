@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AllProgress.css'; 
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../../components/sidebar/sidebar';
 
 const AllProgress = () => {
   const [progressUpdates, setProgressUpdates] = useState([]);
@@ -193,55 +194,71 @@ const AllProgress = () => {
   }
 
   return (
-    <div className="all-progress-container">
-      <h2 className="page-title">All Progress Updates</h2>
-      <div className="filter-section">
-        <label htmlFor="filterType" className="filter-label">Filter by Type:</label>
-        <select
-          id="filterType"
-          className="form-select filter-select"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-        >
-          <option value="ALL">All</option>
-          <option value="COURSE">Course</option>
-          <option value="READING">Reading</option>
-          <option value="SKILL">Skill</option>
-          <option value="PROJECT">Project</option>
-          <option value="CERTIFICATION">Certification</option>
-        </select>
-      </div>
-      {filteredUpdates.length === 0 && !loading ? (
-        <div className="no-progress-message">No progress updates available for the selected filter.</div>
-      ) : (
-        <div className="progress-feed">
-          {filteredUpdates.map((update) => (
-            <div key={update.id} className="card progress-card mb-4 shadow-sm">
-              <div className="card-body">
-                <h3 className="card-title update-title">{update.title}</h3>
-                <p className="text-muted update-date">
-                  Posted: {new Date(update.createdAt).toLocaleString()}
-                </p>
-                <p className="card-text update-description">{update.description}</p>
-                <p><span className="detail-label">Type:</span> {update.type}</p>
-                {getProgressDetails(update)}
-                <p className="text-muted"><span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}</p>
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                  <button
-                    className={`btn btn-sm ${update.likedBy.includes(userId) ? 'btn-danger' : 'btn-outline-primary'} like-button`}
-                    onClick={() => handleLike(update.id)}
-                  >
-                    {update.likedBy.includes(userId) ? 'Unlike' : 'Like'}
-                  </button>
-                  <span className="text-muted like-count">
-                    {update.likedBy.length} {update.likedBy.length === 1 ? 'Like' : 'Likes'}
-                  </span>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+      <Sidebar />
+      <main style={{
+        marginLeft: '260px',
+        width: '100%',
+        padding: '80px 32px 40px',
+        background: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+      }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, marginBottom: 32 }}>All Progress Updates</h2>
+        <div className="filter-section" style={{ marginBottom: 24 }}>
+          <label htmlFor="filterType" className="filter-label" style={{ color: '#fff', marginRight: 12 }}>Filter by Type:</label>
+          <select
+            id="filterType"
+            className="form-select filter-select"
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333', maxWidth: 200 }}
+          >
+            <option value="ALL">All</option>
+            <option value="COURSE">Course</option>
+            <option value="READING">Reading</option>
+            <option value="SKILL">Skill</option>
+            <option value="PROJECT">Project</option>
+            <option value="CERTIFICATION">Certification</option>
+          </select>
+        </div>
+        {filteredUpdates.length === 0 && !loading ? (
+          <div className="no-progress-message" style={{ color: '#ccc', textAlign: 'center', marginTop: 32 }}>No progress updates available for the selected filter.</div>
+        ) : (
+          <div className="progress-feed">
+            {filteredUpdates.map((update) => (
+              <div key={update.id} className="card progress-card mb-4 shadow-sm" style={{ background: '#181818', border: '1px solid #333', borderRadius: 16 }}>
+                <div className="card-body">
+                  <h3 className="card-title update-title" style={{ color: '#fff' }}>{update.title}</h3>
+                  <p className="text-muted update-date" style={{ color: '#aaa' }}>
+                    Posted: {new Date(update.createdAt).toLocaleString()}
+                  </p>
+                  <p className="card-text update-description" style={{ color: '#ccc' }}>{update.description}</p>
+                  <p style={{ color: '#fff' }}><span className="detail-label">Type:</span> {update.type}</p>
+                  <div style={{ color: '#fff' }}>{getProgressDetails(update)}</div>
+                  <p className="text-muted" style={{ color: '#aaa' }}><span className="detail-label">Last Updated:</span> {new Date(update.updatedAt).toLocaleString()}</p>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <button
+                      className={`btn btn-sm ${update.likedBy.includes(userId) ? 'btn-danger' : 'btn-outline-primary'} like-button`}
+                      onClick={() => handleLike(update.id)}
+                      style={{ 
+                        background: update.likedBy.includes(userId) ? '#dc3545' : 'transparent',
+                        borderColor: update.likedBy.includes(userId) ? '#dc3545' : '#4b0076',
+                        color: update.likedBy.includes(userId) ? '#fff' : '#4b0076'
+                      }}
+                    >
+                      {update.likedBy.includes(userId) ? 'Unlike' : 'Like'}
+                    </button>
+                    <span className="text-muted like-count" style={{ color: '#aaa' }}>
+                      {update.likedBy.length} {update.likedBy.length === 1 ? 'Like' : 'Likes'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axios';
+import Sidebar from '../../components/sidebar/sidebar';
 
 const CreateCommunityGroup = () => {
   const [name, setName] = useState('');
@@ -29,20 +30,49 @@ const CreateCommunityGroup = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h2>Create Community</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Name</label>
-          <input type="text" className="form-control" value={name} onChange={e => setName(e.target.value)} required />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Description</label>
-          <textarea className="form-control" value={description} onChange={e => setDescription(e.target.value)} required />
-        </div>
-        {error && <div className="text-danger mb-2">{error}</div>}
-        <button type="submit" className="btn btn-primary">Create</button>
-      </form>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
+      <Sidebar />
+      <main style={{
+        marginLeft: '260px',
+        width: '100%',
+        padding: '80px 32px 40px',
+        background: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+      }}>
+        <h2 style={{ color: '#fff', fontWeight: 700, marginBottom: 32 }}>Create Community</h2>
+        <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
+          <div className="mb-3">
+            <label className="form-label" style={{ color: '#fff' }}>Name</label>
+            <input 
+              type="text" 
+              className="form-control" 
+              value={name} 
+              onChange={e => setName(e.target.value)} 
+              required 
+              style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label" style={{ color: '#fff' }}>Description</label>
+            <textarea 
+              className="form-control" 
+              value={description} 
+              onChange={e => setDescription(e.target.value)} 
+              required 
+              style={{ background: '#2a2a2a', color: '#fff', border: '1px solid #333' }}
+            />
+          </div>
+          {error && <div className="text-danger mb-2">{error}</div>}
+          <button 
+            type="submit" 
+            className="btn btn-primary"
+            style={{ background: '#4b0076', border: 'none' }}
+          >
+            Create
+          </button>
+        </form>
+      </main>
     </div>
   );
 };

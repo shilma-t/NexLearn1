@@ -13,8 +13,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav>
-      <h2>Skillhub</h2>
+    <nav className="navbar">
+      <span className="navbar-brand">NexLearn</span>
       <div className="nav-links">
         {isLoggedIn() ? (
           <>
@@ -22,7 +22,7 @@ const Navbar = () => {
               Welcome, {session?.name || session?.email}
             </span>
             <Link to="/home">Home</Link>
-            <button onClick={handleLogout} className="logout-button">Logout</button>
+            <button onClick={handleLogout} className="logout-btn">Logout</button>
           </>
         ) : (
           <>
