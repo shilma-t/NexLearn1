@@ -132,6 +132,17 @@ const CommunityGroupDetail = () => {
     }
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm('Delete this message?')) return;
+    try {
+      await axiosInstance.delete(`/groups/${id}/message/${messageId}?userId=${encodeURIComponent(userEmail)}`);
+      const res = await axiosInstance.get(`/groups/${id}`);
+      setGroup(res.data);
+    } catch {
+      setError('Failed to delete message');
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-danger">{error}</div>;
   if (!group) return <div>Group not found</div>;
@@ -266,9 +277,20 @@ const CommunityGroupDetail = () => {
             <div key={idx} className="mb-3" style={{ background: '#2a2a2a', padding: '12px', borderRadius: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ color: '#fff', fontWeight: 'bold' }}>{msg.senderName}</span>
-                <span style={{ color: '#aaa', fontSize: '0.8em' }}>
-                  {new Date(msg.timestamp).toLocaleString()}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: '#aaa', fontSize: '0.8em' }}>
+                    {new Date(msg.timestamp).toLocaleString()}
+                  </span>
+                  {msg.senderId === userEmail && (
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDeleteMessage(msg.id)}
+                      style={{ background: '#dc3545', border: 'none', padding: '2px 8px' }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
               <p style={{ color: '#fff', margin: 0 }}>{msg.content}</p>
             </div>

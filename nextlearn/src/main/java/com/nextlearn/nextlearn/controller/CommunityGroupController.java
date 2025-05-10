@@ -62,4 +62,9 @@ public class CommunityGroupController {
     public ResponseEntity<CommunityGroup> sendMessage(@PathVariable String groupId, @RequestParam String senderId, @RequestBody GroupMessage message) {
         return ResponseEntity.ok(groupService.sendMessage(groupId, senderId, message));
     }
+
+    @DeleteMapping("/{groupId}/message/{messageId}")
+    public ResponseEntity<CommunityGroup> deleteMessage(@PathVariable String groupId, @PathVariable String messageId, @RequestParam String userId) {
+        return ResponseEntity.ok(groupService.deleteMessage(groupId, messageId, userId));
+    }
 } 

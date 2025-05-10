@@ -96,4 +96,20 @@ public class CommunityGroupService {
         group.setUpdatedAt(new Date());
         return groupRepository.save(group);
     }
+
+    public CommunityGroup deleteMessage(String groupId, String messageId, String userId) {
+        CommunityGroup group = groupRepository.findById(groupId).orElseThrow();
+        GroupMessage messageToDelete = group.getMessages().stream()
+            .filter(msg -> msg.getId().equals(messageId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Message not found"));
+
+        if (!messageToDelete.getSenderId().equals(userId)) {
+            throw new RuntimeException("Only the message sender can delete the message");
+        }
+
+        group.getMessages().removeIf(msg -> msg.getId().equals(messageId));
+        group.setUpdatedAt(new Date());
+        return groupRepository.save(group);
+    }
 } 
