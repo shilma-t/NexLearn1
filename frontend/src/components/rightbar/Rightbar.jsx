@@ -34,19 +34,6 @@ export default function Rightbar() {
             ))}
           </div>
         </div>
-        <h4 className="rightbarTitle">Suggested for You</h4>
-        <div className="rightbarFollowings">
-          {[...Array(6)].map((_, i) => (
-            <div className="rightbarFollowing" key={i}>
-              <img
-                src={`/assets/${i + 1}.jpeg`}
-                alt=""
-                className="rightbarFollowingImg"
-              />
-              <span className="rightbarFollowingName">John Carter</span>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
